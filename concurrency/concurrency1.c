@@ -8,6 +8,7 @@
 
 int eax, ebx, ecx, edx;
 int producerIndex, consumerIndex;
+pthread_cond_t producerCondition, consumerCondition;
 
 struct bufferItem {
     int number;
@@ -16,7 +17,10 @@ struct bufferItem {
 
 struct bufferArray {
     struct bufferItem buffer[32];
+    pthread_mutex_t lock;
 };
+
+struct bufferArray buffer;
 
 void produce() {
 
