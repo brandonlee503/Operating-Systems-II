@@ -78,6 +78,25 @@ int randomNumberGenerator(int min, int max) {
 
 int main(int argc, char *argv) {
    printf("In - main()\n");
+
+   pthread_t consumer0, consumer1, producer0, producer1;
+   
+   // TODO: function pointers
+
+   struct sigaction act;
+   producerIndex = 0;
+   consumerIndex = 0;
+
+   // Set up signal catching
+   sigemptyset(&act.sa_mask);
+   act.sa_flags = 0;
+   act.sa_handler = signalCatch;
+   sigaction(SIGINT, &act, NULL);
+
+   pthread_cond_init(&producerCondition, NULL);
+   pthread_cond_init(&consumerCondition, NULL);
+   pthread_mutex_init(&buffer.lock, NULL);
+
    while(1) {
        randomNumberGenerator(1, 100);
    }
