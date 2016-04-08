@@ -27,6 +27,8 @@ void consume() {
 }
 
 void setRegisters() {
+    // Set eax else core dump
+    eax = 0x01;
     // http://www.codeproject.com/Articles/15971/Using-Inline-Assembly-in-C-C
     __asm__ __volatile__("cpuid;" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "a"(eax));
 }
@@ -40,7 +42,6 @@ int rdrand(int *number) {
 
 int randomNumberGenerator(int min, int max) {
     int number = 0;
-
     setRegisters();
 
     // Check if system supports rdrand by checking bit 30 of ECX register.
