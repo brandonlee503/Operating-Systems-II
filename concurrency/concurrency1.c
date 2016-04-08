@@ -30,6 +30,18 @@ void consume() {
 
 }
 
+void signalCatch(int signal) {
+    printf("Catch signal: %d\n", signal);
+    pthread_mutex_destroy(&buffer.lock);
+
+    // FIXME: If broken, might need to fix here
+    pthread_cond_destroy(&producerCondition);
+    pthread_cond_destroy(&consumerCondition);
+
+    kill(0, signal);
+    exit(0);
+}
+
 void setRegisters() {
     // Set eax else core dump
     eax = 0x01;
