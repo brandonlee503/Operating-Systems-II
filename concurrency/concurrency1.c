@@ -42,25 +42,42 @@ void *produce() {
     while(1) {
         // Lock the routine from other threads
         pthread_mutex_lock(&buffer.lock);
-        while (producerIndex == 31) {
-            // Blocks calling thread until producer condition is signalled.
+        // while (producerIndex == 31) {
+        //     // Blocks calling thread until producer condition is signalled.
+        //     pthread_cond_wait(&producerCondition, &buffer.lock);
+        // }
+        // FIXME: experimenting
+        while (!bufferHasSpace()) {
+            // Block calling thread until consumer condition is signalled
             pthread_cond_wait(&producerCondition, &buffer.lock);
         }
 
         // Create random data number and sleep time
-        dataNumber = randomNumberGenerator(1, 100);
-        dataSleepTime = randomNumberGenerator(2, 9);
+        // dataNumber = randomNumberGenerator(1, 100);
+        // dataSleepTime = randomNumberGenerator(2, 9);
 
         // Insert data into buffer
-        bufferValue.number = dataNumber;
-        bufferValue.sleepTime = dataSleepTime;
-        buffer.buffer[producerIndex] = bufferValue;
+        // bufferValue.number = dataNumber;
+        // bufferValue.sleepTime = dataSleepTime;
+        // buffer.buffer[producerIndex] = bufferValue;
+        // FIXME: experimenting
+        if (buffer.buffer[producerIndex].number == 0) {
+            // Create random data number and sleep time
+            dataNumber = randomNumberGenerator(1, 100);
+            dataSleepTime = randomNumberGenerator(2, 9);
+            // Insert data into buffer
+            bufferValue.number = dataNumber;
+            bufferValue.sleepTime = dataSleepTime;
+            buffer.buffer[producerIndex] = bufferValue;
+        }
 
         // Increment and check index
         producerIndex++;
         if (producerIndex >= 32) {
             producerIndex = 0;
         }
+
+        // sleep(randomNumberGenerator(3, 7));
 
         // Wake up consumer thread and unlock mutex
         pthread_cond_signal(&consumerCondition);
@@ -152,7 +169,7 @@ int randomNumberGenerator(int min, int max) {
     if (number < min) {
         number = min;
     }
-    
+
     return number;
 }
 
@@ -176,12 +193,11 @@ int main(int argc, char *argv) {
    pthread_cond_init(&consumerCondition, NULL);
    pthread_mutex_init(&buffer.lock, NULL);
    pthread_create(&producer0, NULL, produce, NULL);
-   pthread_create(&producer1, NULL, produce, NULL);
+   // pthread_create(&producer1, NULL, produce, NULL);
 
    while(1) {
-    //    randomNumberGenerator(2, 9);
        pthread_create(&consumer0, NULL, consume, NULL);
-       pthread_create(&consumer1, NULL, consume, NULL);
+    //    pthread_create(&consumer1, NULL, consume, NULL);
        pthread_join(consumer0, NULL);
    }
 }
