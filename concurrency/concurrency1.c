@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdbool.h>
 #include "mt19937ar.c"
 
 int eax, ebx, ecx, edx;
@@ -21,6 +22,16 @@ struct bufferArray {
 };
 
 struct bufferArray buffer;
+
+bool bufferHasSpace() {
+    int i;
+    for (i = 0; i < 32; i++) {
+        if (buffer.buffer[i].number == 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void *produce() {
     printf("In - produce()\n");
