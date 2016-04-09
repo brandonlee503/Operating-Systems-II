@@ -1,3 +1,6 @@
+// Brandon Lee
+// Concurrency 1 - Consumer Producer Problem
+// Due Date - 4/11/16
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -7,6 +10,7 @@
 #include <stdbool.h>
 #include "mt19937ar.c"
 
+// Set global registers, indexes, and conditions
 int eax, ebx, ecx, edx;
 int producerIndex, consumerIndex;
 pthread_cond_t producerCondition, consumerCondition;
@@ -42,41 +46,33 @@ void *produce() {
     while(1) {
         // Lock the routine from other threads
         pthread_mutex_lock(&buffer.lock);
-        // while (producerIndex == 31) {
-        //     // Blocks calling thread until producer condition is signalled.
-        //     pthread_cond_wait(&producerCondition, &buffer.lock);
-        // }
-        // FIXME: experimenting
+
+        // Wait until buffer has empty field
         while (!bufferHasSpace()) {
             // Block calling thread until consumer condition is signalled
             pthread_cond_wait(&producerCondition, &buffer.lock);
         }
 
-        // Create random data number and sleep time
-        // dataNumber = randomNumberGenerator(1, 100);
-        // dataSleepTime = randomNumberGenerator(2, 9);
-
-        // Insert data into buffer
-        // bufferValue.number = dataNumber;
-        // bufferValue.sleepTime = dataSleepTime;
-        // buffer.buffer[producerIndex] = bufferValue;
-        // FIXME: experimenting
+        // Increment through the entire array, checking if there's a spot to produce data
         if (buffer.buffer[producerIndex].number == 0) {
+
             // Create random data number and sleep time
             dataNumber = randomNumberGenerator(1, 100);
             dataSleepTime = randomNumberGenerator(2, 9);
+
             // Insert data into buffer
             bufferValue.number = dataNumber;
             bufferValue.sleepTime = dataSleepTime;
             buffer.buffer[producerIndex] = bufferValue;
         }
 
-        // Increment and check index
+        // Increment and wrap around index
         producerIndex++;
         if (producerIndex >= 32) {
             producerIndex = 0;
         }
 
+        // The below sleep time is necessary for assignment requirements, however for TA demo purposes I have commented it out in the interest of time.
         // sleep(randomNumberGenerator(3, 7));
 
         // Wake up consumer thread and unlock mutex
@@ -86,30 +82,25 @@ void *produce() {
 }
 
 void *consume() {
-    // printf("In - consume()\n");
     struct bufferData bufferValue;
     int dataNumber;
     int dataSleepTime;
 
     // Lock routine from other threads
     pthread_mutex_lock(&buffer.lock);
-    // while (producerIndex == 0) {
-    //     // Block calling thread until consumer condition is signalled
-    //     pthread_cond_wait(&consumerCondition, &buffer.lock);
-    // }
 
+    // If there's space in the buffer, have it get filled from the producer so we don't run into any blocking issues.
     while (bufferHasSpace()) {
         // Block calling thread until consumer condition is signalled
         pthread_cond_wait(&consumerCondition, &buffer.lock);
     }
 
-    // Get data from buffer and increment index
+    // Get data from buffer, set value field to empty, and increment index
     bufferValue = buffer.buffer[consumerIndex];
-
-    // FIXME: experimenting
     buffer.buffer[consumerIndex].number = 0;
-
     consumerIndex++;
+
+    // Wrap around
     if (consumerIndex >= 32) {
         consumerIndex = 0;
     }
@@ -119,15 +110,12 @@ void *consume() {
     dataSleepTime = bufferValue.sleepTime;
 
     // Sleep
-    // sleep(dataSleepTime);
-    // FIXME:
-    sleep(1);
-    printf("Consumption Value: %d\n", dataNumber);
+    sleep(dataSleepTime);
 
-    // Print buffer state
+    // Print consumption value and buffer state
+    printf("Consumption Value: %d\n", dataNumber);
     printf("Buffer State: ");
     int i;
-    int bufferSize = sizeof(buffer.buffer)/sizeof(buffer.buffer[0]);
     for (i = 0; i < 32; i++) {
         printf("%d ", buffer.buffer[i]);
     }
@@ -148,6 +136,7 @@ void signalCatch(int signal) {
     exit(0);
 }
 
+// Boilerplate for setting up ASM registers
 void setRegisters() {
     // Set eax else core dump
     eax = 0x01;
@@ -163,7 +152,6 @@ int rdrand(int *number) {
 }
 
 int randomNumberGenerator(int min, int max) {
-    // printf("In - randomNumberGenerator()\n");
     int number = 0;
     setRegisters();
 
@@ -185,9 +173,7 @@ int randomNumberGenerator(int min, int max) {
 }
 
 int main(int argc, char *argv) {
-   printf("In - main()\n");
-
-   pthread_t consumer0, consumer1, producer0, producer1;
+   pthread_t consumer, producer;
 
    struct sigaction act;
    producerIndex = 0;
@@ -203,12 +189,10 @@ int main(int argc, char *argv) {
    pthread_cond_init(&producerCondition, NULL);
    pthread_cond_init(&consumerCondition, NULL);
    pthread_mutex_init(&buffer.lock, NULL);
-   pthread_create(&producer0, NULL, produce, NULL);
-   // pthread_create(&producer1, NULL, produce, NULL);
+   pthread_create(&producer, NULL, produce, NULL);
 
    while(1) {
-       pthread_create(&consumer0, NULL, consume, NULL);
-    //    pthread_create(&consumer1, NULL, consume, NULL);
-       pthread_join(consumer0, NULL);
+       pthread_create(&consumer, NULL, consume, NULL);
+       pthread_join(consumer, NULL);
    }
 }
