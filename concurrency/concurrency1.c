@@ -23,7 +23,37 @@ struct bufferArray {
 struct bufferArray buffer;
 
 void produce() {
+    struct bufferData bufferValue;
+    int dataNumber;
+    int dataSleepTime;
 
+    while(1) {
+        // Lock the routine from other threads
+        pthread_mutex_lock(&buffer.lock);
+        while (producerIndex == 31) {
+            // Blocks the calling thread until the specified condition is signalled.
+            pthread_cond_wait(&producerCondition, &buffer.lock);
+        }
+
+        // Create random data number and sleep time
+        dataNumber = randomNumberGenerator(1,100);
+        dataSleepTime = randomNumberGenerator(2,9);
+
+        // Insert data into buffer
+        bufferValue.number = dataNumber;
+        bufferValue.sleepTime = dataSleepTime;
+        buffer.buffer[producerIndex] = bufferValue;
+
+        // Increment and check index
+        producerIndex++;
+        if (producerIndex >= 32) {
+            producerIndex = 0;
+        }
+
+        // Wake up consumer thread and unlock mutex
+        pthread_cond_signal(&consumerCondition);
+        pthread_mutex_unlock(&buffer.lock);
+    }
 }
 
 void consume() {
