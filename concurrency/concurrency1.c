@@ -86,20 +86,29 @@ void *produce() {
 }
 
 void *consume() {
-    printf("In - consume()\n");
+    // printf("In - consume()\n");
     struct bufferData bufferValue;
     int dataNumber;
     int dataSleepTime;
 
     // Lock routine from other threads
     pthread_mutex_lock(&buffer.lock);
-    while (producerIndex == 0) {
+    // while (producerIndex == 0) {
+    //     // Block calling thread until consumer condition is signalled
+    //     pthread_cond_wait(&consumerCondition, &buffer.lock);
+    // }
+
+    while (bufferHasSpace()) {
         // Block calling thread until consumer condition is signalled
         pthread_cond_wait(&consumerCondition, &buffer.lock);
     }
 
     // Get data from buffer and increment index
     bufferValue = buffer.buffer[consumerIndex];
+
+    // FIXME: experimenting
+    buffer.buffer[consumerIndex].number = 0;
+
     consumerIndex++;
     if (consumerIndex >= 32) {
         consumerIndex = 0;
@@ -110,7 +119,9 @@ void *consume() {
     dataSleepTime = bufferValue.sleepTime;
 
     // Sleep
-    sleep(dataSleepTime);
+    // sleep(dataSleepTime);
+    // FIXME:
+    sleep(1);
     printf("Consumption Value: %d\n", dataNumber);
 
     // Print buffer state
