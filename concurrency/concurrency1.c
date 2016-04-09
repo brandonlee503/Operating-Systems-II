@@ -80,7 +80,7 @@ int main(int argc, char *argv) {
    printf("In - main()\n");
 
    pthread_t consumer0, consumer1, producer0, producer1;
-   
+
    // TODO: function pointers
 
    struct sigaction act;
@@ -96,8 +96,13 @@ int main(int argc, char *argv) {
    pthread_cond_init(&producerCondition, NULL);
    pthread_cond_init(&consumerCondition, NULL);
    pthread_mutex_init(&buffer.lock, NULL);
+   pthread_create(&producer0, NULL, *produce, NULL);
+   pthread_create(&producer1, NULL, *produce, NULL);
 
    while(1) {
-       randomNumberGenerator(1, 100);
+    //    randomNumberGenerator(1, 100);
+       pthread_create(&consumer0, NULL, *consume, NULL);
+       pthread_create(&consumer1, NULL, *consume, NULL);
+       pthread_join(consumer0, NULL);
    }
 }
