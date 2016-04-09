@@ -23,6 +23,7 @@ struct bufferArray {
 struct bufferArray buffer;
 
 void produce() {
+    printf("In - produce()\n");
     struct bufferData bufferValue;
     int dataNumber;
     int dataSleepTime;
@@ -36,8 +37,10 @@ void produce() {
         }
 
         // Create random data number and sleep time
-        dataNumber = randomNumberGenerator(1,100);
-        dataSleepTime = randomNumberGenerator(2,9);
+        dataNumber = randomNumberGenerator(1, 100);
+        printf("dataNumber: %d\n", dataNumber);
+        dataSleepTime = randomNumberGenerator(2, 9);
+        printf("dataSleepTime: %d\n", dataSleepTime);
 
         // Insert data into buffer
         bufferValue.number = dataNumber;
@@ -87,6 +90,7 @@ int rdrand(int *number) {
 }
 
 int randomNumberGenerator(int min, int max) {
+    // printf("In - randomNumberGenerator()\n");
     int number = 0;
     setRegisters();
 
@@ -94,11 +98,13 @@ int randomNumberGenerator(int min, int max) {
     // http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-manual-325462.html
     // http://stackoverflow.com/questions/523724/c-c-check-if-one-bit-is-set-in-i-e-int-variable
     if (ecx & 1<<30) {
+        printf("rdrand ");
         rdrand(&number);
     } else {
+        printf("MT ");
         number = (int)genrand_int32();
     }
-
+    number = abs(number);
     number %= (max - min);
     if (number < min) {
         number = min;
