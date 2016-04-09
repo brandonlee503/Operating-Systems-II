@@ -123,6 +123,7 @@ int main(int argc, char *argv) {
    act.sa_handler = signalCatch;
    sigaction(SIGINT, &act, NULL);
 
+   // https://computing.llnl.gov/tutorials/pthreads/
    pthread_cond_init(&producerCondition, NULL);
    pthread_cond_init(&consumerCondition, NULL);
    pthread_mutex_init(&buffer.lock, NULL);
