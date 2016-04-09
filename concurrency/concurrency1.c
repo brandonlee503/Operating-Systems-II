@@ -109,7 +109,8 @@ int randomNumberGenerator(int min, int max) {
     if (number < min) {
         number = min;
     }
-    printf("MT number: %d\n", number);
+    printf("number: %d\n", number);
+    return number;
 }
 
 int main(int argc, char *argv) {
