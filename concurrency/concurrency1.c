@@ -10,14 +10,14 @@ int eax, ebx, ecx, edx;
 int producerIndex, consumerIndex;
 pthread_cond_t producerCondition, consumerCondition;
 
-struct bufferItem {
+struct bufferData {
     int number;
     int sleepTime;
 };
 
 struct bufferArray {
-    struct bufferItem buffer[32];
-    pthread_mutex_t lock;
+    struct bufferData buffer[32];
+    pthread_mutex_t lock; // Mutex lock for thread synchronization
 };
 
 struct bufferArray buffer;
