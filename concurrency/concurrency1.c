@@ -32,15 +32,13 @@ void *produce() {
         // Lock the routine from other threads
         pthread_mutex_lock(&buffer.lock);
         while (producerIndex == 31) {
-            // Blocks the calling thread until the specified condition is signalled.
+            // Blocks calling thread until producer condition is signalled.
             pthread_cond_wait(&producerCondition, &buffer.lock);
         }
 
         // Create random data number and sleep time
         dataNumber = randomNumberGenerator(1, 100);
-        // printf("dataNumber: %d\n", dataNumber);
         dataSleepTime = randomNumberGenerator(2, 9);
-        // printf("dataSleepTime: %d\n", dataSleepTime);
 
         // Insert data into buffer
         bufferValue.number = dataNumber;
@@ -68,33 +66,45 @@ void *consume() {
     // Lock routine from other threads
     pthread_mutex_lock(&buffer.lock);
     while (producerIndex == 0) {
+        // Block calling thread until consumer condition is signalled
         pthread_cond_wait(&consumerCondition, &buffer.lock);
     }
 
+    // Get data from buffer and increment index
     bufferValue = buffer.buffer[consumerIndex];
     consumerIndex++;
     if (consumerIndex >= 32) {
         consumerIndex = 0;
     }
 
+    // Get values from data
     dataNumber = bufferValue.number;
     dataSleepTime = bufferValue.sleepTime;
-    // printf("dataSleepTime: %d\n", dataSleepTime);
 
+    // Sleep
     sleep(dataSleepTime);
-    printf("Value %d\n", dataNumber);
-    // printf("Buffer: %d\n", buffer.buffer[0].value);
+    printf("Consumption Value: %d\n", dataNumber);
+
+    // Print buffer state
+    printf("Buffer State: ");
+    int i;
+    int bufferSize = sizeof(buffer.buffer)/sizeof(buffer.buffer[0]);
+    for (i = 0; i < 32; i++) {
+        printf("%d ", buffer.buffer[i]);
+    }
+    printf("\n");
+
+    // Wake up producer thread and unlock mutex
     pthread_cond_signal(&producerCondition);
     pthread_mutex_unlock(&buffer.lock);
 }
 
+// Cleanup and exit
 void signalCatch(int signal) {
     printf("Catch signal: %d\n", signal);
     pthread_mutex_destroy(&buffer.lock);
-
     pthread_cond_destroy(&producerCondition);
     pthread_cond_destroy(&consumerCondition);
-
     kill(0, signal);
     exit(0);
 }
@@ -122,10 +132,8 @@ int randomNumberGenerator(int min, int max) {
     // http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-manual-325462.html
     // http://stackoverflow.com/questions/523724/c-c-check-if-one-bit-is-set-in-i-e-int-variable
     if (ecx & 1<<30) {
-        printf("rdrand ");
         rdrand(&number);
     } else {
-        printf("MT ");
         number = (int)genrand_int32();
     }
     number = abs(number);
@@ -133,7 +141,7 @@ int randomNumberGenerator(int min, int max) {
     if (number < min) {
         number = min;
     }
-    printf("number: %d\n", number);
+    
     return number;
 }
 
