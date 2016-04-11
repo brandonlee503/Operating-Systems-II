@@ -38,7 +38,6 @@ bool bufferHasSpace() {
 }
 
 void *produce() {
-    printf("In - produce()\n");
     struct bufferData bufferValue;
     int dataNumber;
     int dataSleepTime;
