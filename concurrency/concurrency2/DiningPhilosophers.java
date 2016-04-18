@@ -1,6 +1,7 @@
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
 
-// After reading this fun summary of Dining Philosophers, going to implement solution through Chandy/Misra.
+// After reading this fun summary of Dining Philosophers, going to implement solution through Chandy/Misra:
 // http://adit.io/posts/2013-05-11-The-Dining-Philosophers-Problem-With-Ron-Swanson.html
 class Fork {
     private boolean dirty;
@@ -18,9 +19,8 @@ class Fork {
     public void lock() {
         try {
             mutex.acquire();
-            // TODO: Fix this up? Maybe clean change it up
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -37,8 +37,8 @@ class Fork {
                         System.out.println("Passing Fork " + id + " from " + user + " to " + userID);
                         this.dirty = false;
                         this.user = userID;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
                     } finally {
                         mutex.release();
                     }
@@ -46,13 +46,13 @@ class Fork {
                     System.out.println("Attempted to pass fork " + id + " from " + user + " to " + userID + " but failed!");
                     wait();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
             }
         }
     }
 
-    public synchronized void makeDirty() {
+    public synchronized void setFork() {
         this.dirty = true;
         notifyAll();
     }
@@ -65,12 +65,13 @@ class Philosopher extends Thread {
 
     public void run() {
         while (true) {
+            think();
             leftFork.getFork(pid);
             rightFork.getFork(pid);
             eat();
             System.out.println("Philosopher " + pid + " has finished eating!");
-            leftFork.makeDirty();
-            rightFork.makeDirty();
+            leftFork.setFork();
+            rightFork.setFork();
         }
     }
 
@@ -83,12 +84,20 @@ class Philosopher extends Thread {
             Thread.sleep((long) (Math.random() * 5000));
             leftFork.unlock();
             rightFork.unlock();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
         }
     }
 
-    // TODO: Add thinking method
+    public void think() {
+        int randomTime = (ThreadLocalRandom.current().nextInt(1, 20 + 1)) * 1000;
+        // System.out.println("The randomNumber: " + randomTime);
+        try {
+            Thread.sleep(randomTime);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     public Philosopher(int id, Fork leftFork, Fork rightFork) {
         this.pid = id;
@@ -114,7 +123,7 @@ public class DiningPhilosophers {
             }
 
             Fork fork = new Fork(i, fid);
-            System.out.println("Fork " + i + "is held by Philosopher " + fid);
+            System.out.println("Fork " + i + " is held by Philosopher " + fid);
             forks[i] = fork;
         }
 
