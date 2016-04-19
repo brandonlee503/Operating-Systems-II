@@ -81,7 +81,7 @@ class Fork {
     }
 
     /**
-     * Method to perform setting or putting a fork. Basically to conform with Chandy/Misra,
+     * Method to perform setting or putting a fork. Basically to follow the Chandy/Misra solution,
      * we set the fork as dirty and pass it over.
      */
     public synchronized void setFork() {
@@ -151,7 +151,6 @@ class Philosopher extends Thread {
             leftFork.lock();
             rightFork.lock();
             System.out.println(philosopherName + " is eating!");
-
             // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
             int randomTime = (ThreadLocalRandom.current().nextInt(2, 9 + 1)) * 1000;
             Thread.sleep(randomTime);
