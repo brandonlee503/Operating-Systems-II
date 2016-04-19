@@ -62,16 +62,16 @@ class Fork {
                 if (dirty) {
                     try {
                         mutex.acquire();
-                        System.out.println("Passing Fork " + id + " from " + user + " to " + userID);
                         this.dirty = false;
                         this.user = userID;
+                        System.out.println("Fork " + id + " is being passed from " + user + " to " + userID);
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     } finally {
                         mutex.release();
                     }
                 } else {
-                    System.out.println("Attempted to pass fork " + id + " from " + user + " to " + userID + " but failed!");
+                    System.out.println(user + " tried to get fork from " + userID + " but unsuccessful!");
                     wait();
                 }
             } catch (InterruptedException ex) {
@@ -132,7 +132,8 @@ class Philosopher extends Thread {
      */
     public void think() {
         try {
-            System.out.println(philosopherName + " is thinking!");
+            System.out.println(philosopherName + " starts thinking!");
+            // Thinking takes between 1 - 20 seconds
             // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
             int randomTime = (ThreadLocalRandom.current().nextInt(1, 20 + 1)) * 1000;
             Thread.sleep(randomTime);
@@ -150,7 +151,8 @@ class Philosopher extends Thread {
         try {
             leftFork.lock();
             rightFork.lock();
-            System.out.println(philosopherName + " is eating!");
+            System.out.println(philosopherName + " starts eating!");
+            // Eating takes between 2 - 9 seconds
             // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
             int randomTime = (ThreadLocalRandom.current().nextInt(2, 9 + 1)) * 1000;
             Thread.sleep(randomTime);
@@ -188,7 +190,7 @@ public class DiningPhilosophers {
             }
 
             Fork fork = new Fork(i, philosopherNames[fid]);
-            System.out.println("Fork " + i + " is held by " + philosopherNames[fid]);
+            System.out.println(philosopherNames[fid] + " holds fork " + i);
             forks[i] = fork;
         }
 
@@ -203,3 +205,5 @@ public class DiningPhilosophers {
         new DiningPhilosophers();
     }
 }
+
+// TODO: Update print statements, ID naming
