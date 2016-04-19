@@ -9,16 +9,16 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 class Fork {
     private boolean dirty;
-    private int user;
+    private String user;
     private Semaphore mutex;
     public int id;
 
     /**
      * Constructor for fork object.
      * @param id - Identification number for fork.
-     * @param userID - Identification number of the user of the fork.
+     * @param userID - Name of the user of the fork.
      */
-    public Fork(int id, int userID) {
+    public Fork(int id, String userID) {
         this.dirty = true;
         this.user = userID;
         this.mutex = new Semaphore(1);
@@ -47,7 +47,7 @@ class Fork {
      * Method to perform getting a fork
      * @param userID The user getting the fork.
      */
-    public synchronized void getFork(int userID) {
+    public synchronized void getFork(String userID) {
         while (this.user != userID) {
             try {
                 if (dirty) {
@@ -85,7 +85,7 @@ class Fork {
  * Abstract representation of a philosopher entity.
  */
 class Philosopher extends Thread {
-    private int pid;
+    private String philosopherName;
     public Fork leftFork;
     public Fork rightFork;
 
@@ -95,8 +95,8 @@ class Philosopher extends Thread {
      * @param leftFork - Fork to the left of philosopher.
      * @param rightFork - Fork to the right of philosopher.
      */
-    public Philosopher(int id, Fork leftFork, Fork rightFork) {
-        this.pid = id;
+    public Philosopher(String philosopherName, Fork leftFork, Fork rightFork) {
+        this.philosopherName = philosopherName;
         this.leftFork = leftFork;
         this.rightFork = rightFork;
     }
@@ -107,8 +107,8 @@ class Philosopher extends Thread {
     public void run() {
         while (true) {
             think();
-            leftFork.getFork(pid);
-            rightFork.getFork(pid);
+            leftFork.getFork(philosopherName);
+            rightFork.getFork(philosopherName);
             eat();
             leftFork.setFork();
             rightFork.setFork();
@@ -120,11 +120,11 @@ class Philosopher extends Thread {
      */
     public void think() {
         try {
-            System.out.println("Philosopher " + pid + " is thinking!");
+            System.out.println(philosopherName + " is thinking!");
             // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
             int randomTime = (ThreadLocalRandom.current().nextInt(1, 20 + 1)) * 1000;
             Thread.sleep(randomTime);
-            System.out.println("Philosopher " + pid + " has finished thinking!");
+            System.out.println(philosopherName + " has finished thinking!");
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
@@ -138,14 +138,14 @@ class Philosopher extends Thread {
         try {
             leftFork.lock();
             rightFork.lock();
-            System.out.println("Philosopher " + pid + " is eating!");
+            System.out.println(philosopherName + " is eating!");
 
             // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
             int randomTime = (ThreadLocalRandom.current().nextInt(2, 9 + 1)) * 1000;
             Thread.sleep(randomTime);
             leftFork.unlock();
             rightFork.unlock();
-            System.out.println("Philosopher " + pid + " has finished eating!");
+            System.out.println(philosopherName + " has finished eating!");
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
@@ -157,6 +157,7 @@ class Philosopher extends Thread {
  */
 public class DiningPhilosophers {
     public Fork[] forks;
+    public String[] philosopherNames = {"Barack Obama", "Vladimir Putin", "David Cameron", "Justin Trudeau", "Xi Jinping"};
     private Philosopher[] philosophers;
 
     /**
@@ -175,13 +176,14 @@ public class DiningPhilosophers {
                 fid = setFork;
             }
 
-            Fork fork = new Fork(i, fid);
-            System.out.println("Fork " + i + " is held by Philosopher " + fid);
+            Fork fork = new Fork(i, philosopherNames[fid]);
+            System.out.println("Fork " + i + " is held by " + philosopherNames[fid]);
             forks[i] = fork;
         }
 
+        // TODO: implement philosopher names instead of numbers
         for (int i = 0; i < philosophers.length; i++) {
-            philosophers[i] = new Philosopher(i, forks[i], forks[(i + 1) % 5]);
+            philosophers[i] = new Philosopher(philosopherNames[i], forks[i], forks[(i + 1) % 5]);
             philosophers[i].start();
         }
     }
