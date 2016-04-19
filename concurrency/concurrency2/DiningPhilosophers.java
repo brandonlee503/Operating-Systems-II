@@ -1,3 +1,9 @@
+/**
+ * Brandon Lee
+ * CS 444 Kevin McGrath
+ * Concurrency 2 - Dining Philosophers
+ * 19 April 2016
+ */
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -6,6 +12,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Abstract representation of a fork entity.
+ * Some helpful resources:
+ * https://rosettacode.org/wiki/Dining_philosophers
+ * https://dzone.com/articles/reentrantlock-and-dining-philo
  */
 class Fork {
     private boolean dirty;
@@ -83,6 +92,9 @@ class Fork {
 
 /**
  * Abstract representation of a philosopher entity.
+ * Some helpful resources:
+ * http://logand.com/sw/phil.l
+ * http://codereview.stackexchange.com/questions/25989/dining-philosophers-problem-solution-with-java-reentrantlock
  */
 class Philosopher extends Thread {
     private String philosopherName;
@@ -181,7 +193,6 @@ public class DiningPhilosophers {
             forks[i] = fork;
         }
 
-        // TODO: implement philosopher names instead of numbers
         for (int i = 0; i < philosophers.length; i++) {
             philosophers[i] = new Philosopher(philosopherNames[i], forks[i], forks[(i + 1) % 5]);
             philosophers[i].start();
@@ -189,7 +200,7 @@ public class DiningPhilosophers {
     }
 
     public static void main(String[] args) {
-        System.out.println("Dining Philosophers2");
+        System.out.println("Dining Philosophers Puzzle");
         new DiningPhilosophers();
     }
 }
