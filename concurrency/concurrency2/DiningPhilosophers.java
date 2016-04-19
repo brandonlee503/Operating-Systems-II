@@ -1,21 +1,33 @@
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
-// After reading this fun summary of Dining Philosophers, going to implement solution through Chandy/Misra:
+// After reading this fun summary of Dining Philosophers, I've decided to implement the solution through Chandy/Misra:
 // http://adit.io/posts/2013-05-11-The-Dining-Philosophers-Problem-With-Ron-Swanson.html
+
+/**
+ * Abstract representation of a fork entity.
+ */
 class Fork {
     private boolean dirty;
     private int user;
     private Semaphore mutex;
     public int id;
 
+    /**
+     * Constructor for fork object.
+     * @param id - Identification number for fork.
+     * @param userID - Identification number of the user of the fork.
+     */
     public Fork(int id, int userID) {
         this.dirty = true;
-        this.user = user;
+        this.user = userID;
         this.mutex = new Semaphore(1);
         this.id = id;
     }
 
+    /**
+     * Method to perform mutex lock.
+     */
     public void lock() {
         try {
             mutex.acquire();
@@ -24,10 +36,17 @@ class Fork {
         }
     }
 
+    /**
+     * Method to perform mutex unlock.
+     */
     public void unlock() {
         mutex.release();
     }
 
+    /**
+     * Method to perform getting a fork
+     * @param userID The user getting the fork.
+     */
     public synchronized void getFork(int userID) {
         while (this.user != userID) {
             try {
@@ -52,74 +71,108 @@ class Fork {
         }
     }
 
+    /**
+     * Method to perform setting or putting a fork. Basically to conform with Chandy/Misra,
+     * we set the fork as dirty and pass it over.
+     */
     public synchronized void setFork() {
         this.dirty = true;
         notifyAll();
     }
 }
 
+/**
+ * Abstract representation of a philosopher entity.
+ */
 class Philosopher extends Thread {
     private int pid;
     public Fork leftFork;
     public Fork rightFork;
 
+    /**
+     * Constructor for philosopher entity.
+     * @param pid - Identification number for philosopher.
+     * @param leftFork - Fork to the left of philosopher.
+     * @param rightFork - Fork to the right of philosopher.
+     */
+    public Philosopher(int id, Fork leftFork, Fork rightFork) {
+        this.pid = id;
+        this.leftFork = leftFork;
+        this.rightFork = rightFork;
+    }
+
+    /**
+     * Method to simulate interacting threads as philosophers at the table.
+     */
     public void run() {
         while (true) {
             think();
             leftFork.getFork(pid);
             rightFork.getFork(pid);
             eat();
-            System.out.println("Philosopher " + pid + " has finished eating!");
             leftFork.setFork();
             rightFork.setFork();
         }
     }
 
+    /**
+     * Method to perform individual thread action of thinking.
+     */
+    public void think() {
+        try {
+            System.out.println("Philosopher " + pid + " is thinking!");
+            // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
+            int randomTime = (ThreadLocalRandom.current().nextInt(1, 20 + 1)) * 1000;
+            Thread.sleep(randomTime);
+            System.out.println("Philosopher " + pid + " has finished thinking!");
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Method to perform individual thread action of consuming.
+     * Fork mutex locks are locked during execution to achieve concurrency.
+     */
     public void eat() {
         try {
             leftFork.lock();
             rightFork.lock();
             System.out.println("Philosopher " + pid + " is eating!");
-            // TODO Fix sleeping here
-            Thread.sleep((long) (Math.random() * 5000));
+
+            // http://stackoverflow.com/questions/363681/generating-random-integers-in-a-specific-range
+            int randomTime = (ThreadLocalRandom.current().nextInt(2, 9 + 1)) * 1000;
+            Thread.sleep(randomTime);
             leftFork.unlock();
             rightFork.unlock();
+            System.out.println("Philosopher " + pid + " has finished eating!");
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    public void think() {
-        int randomTime = (ThreadLocalRandom.current().nextInt(1, 20 + 1)) * 1000;
-        // System.out.println("The randomNumber: " + randomTime);
-        try {
-            Thread.sleep(randomTime);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    public Philosopher(int id, Fork leftFork, Fork rightFork) {
-        this.pid = id;
-        this.leftFork = leftFork;
-        this.rightFork = rightFork;
     }
 }
 
+/**
+ * Abstract representation of the Dining Philosophers problem.
+ */
 public class DiningPhilosophers {
     public Fork[] forks;
     private Philosopher[] philosophers;
 
+    /**
+     * Constructor for DiningPhilosophers entity.
+     */
     public DiningPhilosophers() {
         forks        = new Fork[5];
         philosophers = new Philosopher[5];
 
         for (int i = 0; i < forks.length; i++) {
             int fid = 0;
-            if (i < ((i + 4) % 5)) {
+            int setFork = ((i + 4) % 5);
+            if (i < setFork) {
                 fid = i;
             } else {
-                fid = ((i + 4) % 5);
+                fid = setFork;
             }
 
             Fork fork = new Fork(i, fid);
@@ -135,7 +188,6 @@ public class DiningPhilosophers {
 
     public static void main(String[] args) {
         System.out.println("Dining Philosophers2");
-        System.out.println("States, T = thinking, W = Waiting, E = Eating, _ = Finished");
         new DiningPhilosophers();
     }
 }
