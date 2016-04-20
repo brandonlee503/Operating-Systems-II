@@ -18,18 +18,18 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 class Fork {
     private boolean dirty;
-    private String user;
+    private String userA;
     private Semaphore mutex;
     public int id;
 
     /**
      * Constructor for fork object.
      * @param id - Identification number for fork.
-     * @param userID - Name of the user of the fork.
+     * @param userB - Name of the user of the fork.
      */
-    public Fork(int id, String userID) {
+    public Fork(int id, String userB) {
         this.dirty = true;
-        this.user = userID;
+        this.userA = userB;
         this.mutex = new Semaphore(1);
         this.id = id;
     }
@@ -54,24 +54,24 @@ class Fork {
 
     /**
      * Method to perform getting a fork
-     * @param userID The user getting the fork.
+     * @param userB The user getting the fork.
      */
-    public synchronized void getFork(String userID) {
-        while (this.user != userID) {
+    public synchronized void getFork(String userB) {
+        while (this.userA != userB) {
             try {
                 if (dirty) {
                     try {
                         mutex.acquire();
                         this.dirty = false;
-                        this.user = userID;
-                        System.out.println("Fork " + id + " is being passed from " + user + " to " + userID);
+                        System.out.println("Fork " + id + " is being passed from " + userA + " to " + userB);
+                        this.userA = userB;
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     } finally {
                         mutex.release();
                     }
                 } else {
-                    System.out.println(user + " tried to get fork from " + userID + " but unsuccessful!");
+                    System.out.println(userA + " tried to get fork from " + userB + " but unsuccessful!");
                     wait();
                 }
             } catch (InterruptedException ex) {
@@ -201,9 +201,6 @@ public class DiningPhilosophers {
     }
 
     public static void main(String[] args) {
-        System.out.println("Dining Philosophers Puzzle");
         new DiningPhilosophers();
     }
 }
-
-// TODO: Update print statements, ID naming
