@@ -30,7 +30,41 @@ static int sstf_dispatch(struct request_queue *q, int force)
 		next_rq = list_entry(nd->queue.next, struct request queuelist);
 		prev_rq = list_entry(nd->queue.prev, struct request queuelist);
 
+		// Set rq, evaluate the nodes in list
+		if (next_rq == prev_rq) {
+			// Only one node in list if next is also prev
+			printk("Only one request!\n");
+			rq = next_rq;
+		} else {
+			printk("Multiple requests!");
 
+			// Check direction
+			if (nd->direction == 1) {
+				printk("Moving forward!\n");
+
+				// Check where next request is located in respect to current request
+				if (nd->head < next_rq->__sector) {
+					// Request is farther up
+					rq = next_rq;
+				} else {
+					// Request is farther back
+					nd->direction = 0;
+					rq = prev_rq;
+				}
+			} else {
+				printk("Moving backward!\n");
+
+				// Check where next request is located in respect to current request
+				if (nd->head > prev_rq->__sector) {
+					// Request is farther back
+					req = prev_rq;
+				} else {
+					// Request is farther up
+					nd->direction = 1;
+					rq = next_rq;
+				}
+			}
+		}
 
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
