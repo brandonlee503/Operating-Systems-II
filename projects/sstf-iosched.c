@@ -22,10 +22,16 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq, st
 static int sstf_dispatch(struct request_queue *q, int force)
 {
 	struct sstf_data *nd = q->elevator->elevator_data;
-
+	printk("sstf_dispatch() - Start")
 	if (!list_empty(&nd->queue)) {
-		struct request *rq;
-		rq = list_entry(nd->queue.next, struct request, queuelist);
+		struct request *rq, next_rq, prev_rq;
+		// rq = list_entry(nd->queue.next, struct request, queuelist);
+		// Next request and prev request get the request greater/less than current node
+		next_rq = list_entry(nd->queue.next, struct request queuelist);
+		prev_rq = list_entry(nd->queue.prev, struct request queuelist);
+
+
+
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
 		return 1;
