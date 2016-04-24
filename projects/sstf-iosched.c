@@ -65,9 +65,19 @@ static int sstf_dispatch(struct request_queue *q, int force)
 				}
 			}
 		}
+		printk("Running!\n");
 
+		// Delete from queue
 		list_del_init(&rq->queuelist);
-		elv_dispatch_sort(q, rq);
+
+		// Get read head new position
+		nd->head = blk_rq_pos(rq) + blk_rq_sectors(rq);
+
+		// Send elevator the request
+		elv_dispatch_add_tail(q, rq);
+		// elv_dispatch_sort(q, rq);
+		printk("Finished running!\n");
+		printk("SSTF reading: %llu\n", (unsigned long long) rq->__sector);
 		return 1;
 	}
 	return 0;
