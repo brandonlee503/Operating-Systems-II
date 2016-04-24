@@ -1,5 +1,5 @@
 /*
- * elevator sstf
+ * elevator sstf look
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -12,9 +12,9 @@ struct sstf_data {
 	struct list_head queue;
 };
 
-static void sstf_print(struct request_queue *q)
+static void sstf_merged_requests(struct request_queue *q, struct request *rq, struct request *next)
 {
-
+	list_del_init(&next->queuelist);
 }
 
 static int sstf_dispatch(struct request_queue *q, int force)
@@ -68,11 +68,6 @@ static void sstf_exit_queue(struct elevator_queue *e)
 
 	BUG_ON(!list_empty(&nd->queue));
 	kfree(nd);
-}
-
-static int sstf_stop_merge(struct request_queue *request_q, struct request *req struct bio *bio)
-{
-
 }
 
 static struct elevator_type elevator_sstf = {
