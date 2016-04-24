@@ -10,6 +10,8 @@
 
 struct sstf_data {
 	struct list_head queue;
+	int direction;
+	sector_t head;
 };
 
 static void sstf_merged_requests(struct request_queue *q, struct request *rq, struct request *next)
