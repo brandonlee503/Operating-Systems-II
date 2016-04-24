@@ -38,6 +38,26 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 	list_add_tail(&rq->queuelist, &nd->queue);
 }
 
+static struct request *
+sstf_former_request(struct request_queue *q, struct request *rq)
+{
+	struct sstf_data *nd = q->elevator->elevator_data;
+
+	if (rq->queuelist.prev == &nd->queue)
+		return NULL;
+	return list_entry(rq->queuelist.prev, struct request, queuelist);
+}
+
+static struct request *
+sstf_latter_request(struct request_queue *q, struct request *rq)
+{
+	struct sstf_data *nd = q->elevator->elevator_data;
+
+	if (rq->queuelist.next == &nd->queue)
+		return NULL;
+	return list_entry(rq->queuelist.next, struct request, queuelist);
+}
+
 static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
 {
 	struct sstf_data *nd;
