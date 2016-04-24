@@ -18,6 +18,11 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq,
 	list_del_init(&next->queuelist);
 }
 
+static void sstf_print(struct request_queue *q)
+{
+
+}
+
 static int sstf_dispatch(struct request_queue *q, int force)
 {
 	struct sstf_data *nd = q->elevator->elevator_data;
@@ -89,6 +94,11 @@ static void sstf_exit_queue(struct elevator_queue *e)
 
 	BUG_ON(!list_empty(&nd->queue));
 	kfree(nd);
+}
+
+static int sstf_stop_merge(struct request_queue *request_q, struct request *req struct bio *bio)
+{
+
 }
 
 static struct elevator_type elevator_sstf = {
