@@ -86,9 +86,33 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
+	printk("sstf_add_request() - Start")
+	struct request *next_rq, *prev_rq;
 	struct sstf_data *nd = q->elevator->elevator_data;
 
-	list_add_tail(&rq->queuelist, &nd->queue);
+	if (list_empty(&nd->queue)) {
+		// Empty list, just add to the request
+		printk("Empty list!\n");
+		list_add(&rq->queuelist, &nd->queue);
+	} else {
+		printk("Looking for a place for the request!\n");
+
+		// Look for where request could be joined into the request list
+		next_rq = list_entry(nd->queue.next, struct request, queuelist);
+		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
+
+		// Interate through list and find exact location to add to
+		while (blk_rq_pos(next_rq) < blk_rq_pos(rq)) {
+			next_rq = list_entry(nd->queue.next, struct request, queuelist);
+			prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
+		}
+
+		// Add request to the proper location in list
+		list_add(&rq->queuelist, &prev_rq->queuelist);
+		printk("Found location!\n");
+	}
+
+	printk("SSTF adding: %llu\n", (unsigned long long) rq->__sector);
 }
 
 static struct request *
