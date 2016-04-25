@@ -21,8 +21,9 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq, st
 
 static int sstf_dispatch(struct request_queue *q, int force)
 {
-	struct sstf_data *nd = q->elevator->elevator_data;
 	printk("sstf_dispatch() - Start")
+	struct sstf_data *nd = q->elevator->elevator_data;
+
 	if (!list_empty(&nd->queue)) {
 		struct request *rq, next_rq, prev_rq;
 		// rq = list_entry(nd->queue.next, struct request, queuelist);
