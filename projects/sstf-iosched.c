@@ -171,13 +171,13 @@ static void sstf_exit_queue(struct elevator_queue *e)
 
 static struct elevator_type elevator_sstf = {
 	.ops = {
-		.elevator_merge_req_fn		= sstf_merged_requests,
-		.elevator_dispatch_fn		= sstf_dispatch,
-		.elevator_add_req_fn		= sstf_add_request,
-		.elevator_former_req_fn		= sstf_former_request,
-		.elevator_latter_req_fn		= sstf_latter_request,
-		.elevator_init_fn		= sstf_init_queue,
-		.elevator_exit_fn		= sstf_exit_queue,
+		.elevator_merge_req_fn		 = sstf_merged_requests,
+		.elevator_dispatch_fn		 = sstf_dispatch,
+		.elevator_add_req_fn		 = sstf_add_request,
+		.elevator_former_req_fn		 = sstf_former_request,
+		.elevator_latter_req_fn		 = sstf_latter_request,
+		.elevator_init_fn		     = sstf_init_queue,
+		.elevator_exit_fn		     = sstf_exit_queue,
 	},
 	.elevator_name = "sstf",
 	.elevator_owner = THIS_MODULE,
