@@ -149,6 +149,8 @@ static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
 		kobject_put(&eq->kobj);
 		return -ENOMEM;
 	}
+
+	nd->head = 0;
 	eq->elevator_data = nd;
 
 	INIT_LIST_HEAD(&nd->queue);
