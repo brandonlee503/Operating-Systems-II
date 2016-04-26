@@ -3,6 +3,8 @@
  */
 
 //TODO: Invert forward backward in dispatch
+// TODO: Basically wrote a couple scripts, fixed these bugs, now issue is that
+// the VM isnt using this as the default scheduler
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
 #include <linux/bio.h>
@@ -23,11 +25,11 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq, st
 
 static int sstf_dispatch(struct request_queue *q, int force)
 {
-	printk("sstf_dispatch() - Start");
 	struct sstf_data *nd = q->elevator->elevator_data;
+	printk("sstf_dispatch() - Start");
 
 	if (!list_empty(&nd->queue)) {
-		struct request *rq, next_rq, prev_rq;
+		struct request *rq, *next_rq, *prev_rq;
 		// rq = list_entry(nd->queue.next, struct request, queuelist);
 		// Next request and prev request get the request greater/less than current node
 		next_rq = list_entry(nd->queue.next, struct request, queuelist);
@@ -60,7 +62,7 @@ static int sstf_dispatch(struct request_queue *q, int force)
 				// Check where next request is located in respect to current request
 				if (nd->head > prev_rq->__sector) {
 					// Request is farther back
-					req = prev_rq;
+					rq = prev_rq;
 				} else {
 					// Request is farther up
 					nd->direction = 1;
@@ -88,9 +90,9 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
-	printk("sstf_add_request() - Start")
 	struct request *next_rq, *prev_rq;
 	struct sstf_data *nd = q->elevator->elevator_data;
+	printk("sstf_add_request() - Start");
 
 	if (list_empty(&nd->queue)) {
 		// Empty list, just add to the request
@@ -181,7 +183,7 @@ static struct elevator_type elevator_sstf = {
 		.elevator_init_fn		     = sstf_init_queue,
 		.elevator_exit_fn		     = sstf_exit_queue,
 	},
-	.elevator_name = "sstf",
+	.elevator_name = "look",
 	.elevator_owner = THIS_MODULE,
 };
 
