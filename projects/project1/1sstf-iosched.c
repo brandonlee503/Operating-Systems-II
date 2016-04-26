@@ -23,7 +23,7 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq, st
 
 static int sstf_dispatch(struct request_queue *q, int force)
 {
-	printk("Look Algorithm: sstf_dispatch() - Starting up dispatch")
+	printk("Look Algorithm: sstf_dispatch() - Starting up dispatch\n")
 	struct sstf_data *nd = q->elevator->elevator_data;
 
 	if (!list_empty(&nd->queue)) {

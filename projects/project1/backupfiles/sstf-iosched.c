@@ -4,7 +4,8 @@
 
 //TODO: Invert forward backward in dispatch
 // TODO: Basically wrote a couple scripts, fixed these bugs, now issue is that
-// the VM isnt using this as the default scheduler
+// the VM isnt using this as the default scheduler, perhaps make clean and redo?
+// THE PROBLEM IS IN ADD_REQUEST()
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
 #include <linux/bio.h>
@@ -26,11 +27,11 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq, st
 static int sstf_dispatch(struct request_queue *q, int force)
 {
 	struct sstf_data *nd = q->elevator->elevator_data;
-	printk("sstf_dispatch() - Start");
+	printk("Look Algorithm: sstf_dispatch() - Starting up dispatch!\n");
 
 	if (!list_empty(&nd->queue)) {
 		struct request *rq, *next_rq, *prev_rq;
-		// rq = list_entry(nd->queue.next, struct request, queuelist);
+		
 		// Next request and prev request get the request greater/less than current node
 		next_rq = list_entry(nd->queue.next, struct request, queuelist);
 		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
@@ -90,31 +91,33 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
-	struct request *next_rq, *prev_rq;
-	struct sstf_data *nd = q->elevator->elevator_data;
-	printk("sstf_add_request() - Start");
+    struct sstf_data *nd = q->elevator->elevator_data;
+    struct request *next_rq, *prev_rq;
 
-	if (list_empty(&nd->queue)) {
-		// Empty list, just add to the request
+	printk("Look Algorithm: sstf_add_request() - Starting up add!\n");
+
+    if (list_empty(&nd->queue)) {
 		printk("Empty list!\n");
-		list_add(&rq->queuelist, &nd->queue);
-	} else {
+
+		// Empty list, just add to the request
+        list_add(&rq->queuelist, &nd->queue);
+    } else {
 		printk("Looking for a place for the request!\n");
 
 		// Look for where request could be joined into the request list
-		next_rq = list_entry(nd->queue.next, struct request, queuelist);
-		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
+        next_rq = list_entry(nd->queue.next, struct request, queuelist);
+        prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
 
 		// Interate through list and find exact location to add to
-		while (blk_rq_pos(next_rq) < blk_rq_pos(rq)) {
-			next_rq = list_entry(nd->queue.next, struct request, queuelist);
-			prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
-		}
+        while (blk_rq_pos(rq) > blk_rq_pos(next_rq)) {
+            next_rq = list_entry(next_rq->queuelist.next, struct request, queuelist);
+            prev_rq = list_entry(prev_rq->queuelist.prev, struct request, queuelist);
+        }
 
 		// Add request to the proper location in list
-		list_add(&rq->queuelist, &prev_rq->queuelist);
+        list_add(&rq->queuelist, &prev_rq->queuelist);
 		printk("Found location!\n");
-	}
+    }
 
 	printk("SSTF adding: %llu\n", (unsigned long long) rq->__sector);
 }
