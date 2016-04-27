@@ -2,6 +2,7 @@
 
 # Sets up VM/kernel to be built
 # Usage: ". setup.sh"
+
 echo "Setting up..."
 source /scratch/opt/environment-setup-i586-poky-linux
 cd /scratch/spring2016/cs444-074/linux-yocto-3.14/
