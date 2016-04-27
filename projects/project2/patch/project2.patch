@@ -1,0 +1,334 @@
+commit 5474ae2582b9346800aba6fe06e45d195b612ca9
+Author: Brandon Lee <brandonlee503@gmail.com>
+Date:   Wed Apr 27 15:40:09 2016 -0700
+
+    Assignment 2 - Add patch files
+
+diff --git a/patch/Kconfig.iosched b/patch/Kconfig.iosched
+new file mode 100644
+index 0000000..9c4e10a
+--- /dev/null
++++ b/patch/Kconfig.iosched
+@@ -0,0 +1,80 @@
++if BLOCK
++
++menu "IO Schedulers"
++
++config IOSCHED_NOOP
++	bool
++	default y
++	---help---
++	  The no-op I/O scheduler is a minimal scheduler that does basic merging
++	  and sorting. Its main uses include non-disk based block devices like
++	  memory devices, and specialised software or hardware environments
++	  that do their own scheduling and require only minimal assistance from
++	  the kernel.
++
++config IOSCHED_DEADLINE
++	tristate "Deadline I/O scheduler"
++	default y
++	---help---
++	  The deadline I/O scheduler is simple and compact. It will provide
++	  CSCAN service with FIFO expiration of requests, switching to
++	  a new point in the service tree and doing a batch of IO from there
++	  in case of expiry.
++
++config IOSCHED_CFQ
++	tristate "CFQ I/O scheduler"
++	default y
++	---help---
++	  The CFQ I/O scheduler tries to distribute bandwidth equally
++	  among all processes in the system. It should provide a fair
++	  and low latency working environment, suitable for both desktop
++	  and server systems.
++
++	  This is the default I/O scheduler.
++
++config IOSCHED_LOOK
++    tristate "LOOK I/O scheduler"
++    default y
++    ---help---
++      The LOOK I/O scheduler attempts to determine the disk's arm motion
++      and serve requests to maximum efficiency. It goes from high to original
++      to low.
++
++config CFQ_GROUP_IOSCHED
++	bool "CFQ Group Scheduling support"
++	depends on IOSCHED_CFQ && BLK_CGROUP
++	default n
++	---help---
++	  Enable group IO scheduling in CFQ.
++
++choice
++	prompt "Default I/O scheduler"
++	default DEFAULT_CFQ
++	help
++	  Select the I/O scheduler which will be used by default for all
++	  block devices.
++
++	config DEFAULT_DEADLINE
++		bool "Deadline" if IOSCHED_DEADLINE=y
++
++	config DEFAULT_CFQ
++		bool "CFQ" if IOSCHED_CFQ=y
++
++	config DEFAULT_NOOP
++		bool "No-op"
++
++    config DEFAULT_LOOK
++        bool "Look" if IOSCHED_LOOK=y
++
++endchoice
++
++config DEFAULT_IOSCHED
++	string
++	default "deadline" if DEFAULT_DEADLINE
++	default "cfq" if DEFAULT_CFQ
++	default "noop" if DEFAULT_NOOP
++    default "look" if DEFAULT_LOOK
++
++endmenu
++
++endif
+diff --git a/patch/Makefile b/patch/Makefile
+new file mode 100644
+index 0000000..ba75e17
+--- /dev/null
++++ b/patch/Makefile
+@@ -0,0 +1,23 @@
++#
++# Makefile for the kernel block layer
++#
++
++obj-$(CONFIG_BLOCK) := elevator.o blk-core.o blk-tag.o blk-sysfs.o \
++			blk-flush.o blk-settings.o blk-ioc.o blk-map.o \
++			blk-exec.o blk-merge.o blk-softirq.o blk-timeout.o \
++			blk-iopoll.o blk-lib.o blk-mq.o blk-mq-tag.o \
++			blk-mq-sysfs.o blk-mq-cpu.o blk-mq-cpumap.o ioctl.o \
++			genhd.o scsi_ioctl.o partition-generic.o partitions/
++
++obj-$(CONFIG_BLK_DEV_BSG)	+= bsg.o
++obj-$(CONFIG_BLK_DEV_BSGLIB)	+= bsg-lib.o
++obj-$(CONFIG_BLK_CGROUP)	+= blk-cgroup.o
++obj-$(CONFIG_BLK_DEV_THROTTLING)	+= blk-throttle.o
++obj-$(CONFIG_IOSCHED_NOOP)	+= noop-iosched.o
++obj-$(CONFIG_IOSCHED_DEADLINE)	+= deadline-iosched.o
++obj-$(CONFIG_IOSCHED_CFQ)	+= cfq-iosched.o
++obj-$(CONFIG_IOSCHED_LOOK)	+= sstf-iosched.o
++
++obj-$(CONFIG_BLOCK_COMPAT)	+= compat_ioctl.o
++obj-$(CONFIG_BLK_DEV_INTEGRITY)	+= blk-integrity.o
++obj-$(CONFIG_BLK_CMDLINE_PARSER)	+= cmdline-parser.o
+diff --git a/patch/sstf-iosched.c b/patch/sstf-iosched.c
+new file mode 100644
+index 0000000..4df0d95
+--- /dev/null
++++ b/patch/sstf-iosched.c
+@@ -0,0 +1,207 @@
++/*
++ * elevator sstf look
++ */
++#include <linux/blkdev.h>
++#include <linux/elevator.h>
++#include <linux/bio.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/init.h>
++
++struct sstf_data {
++	struct list_head queue;
++
++	// Add representations for request direction and head
++	int direction;
++	sector_t head;
++};
++
++static void sstf_merged_requests(struct request_queue *q, struct request *rq, struct request *next)
++{
++	list_del_init(&next->queuelist);
++}
++
++static int sstf_dispatch(struct request_queue *q, int force)
++{
++	struct sstf_data *nd = q->elevator->elevator_data;
++	printk("Look Algorithm: sstf_dispatch() - Starting up dispatch!\n");
++
++	// Check if list has nodes
++	if (!list_empty(&nd->queue)) {
++		struct request *rq, *next_rq, *prev_rq;
++
++		// Next request and prev request get the request greater/less than current node
++		next_rq = list_entry(nd->queue.next, struct request, queuelist);
++		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
++
++		// Set rq, evaluate the nodes in list
++		if (next_rq != prev_rq) {
++			printk("sstf_dispatch() - Multiple requests!");
++
++			// Check direction
++			if (nd->direction == 0) {
++				printk("sstf_dispatch() - Moving backward...\n");
++
++				// Check where next request is located in respect to current request
++				if (nd->head > prev_rq->__sector) {
++					// Request is farther back
++					rq = prev_rq;
++				} else {
++					// Request is farther up
++					nd->direction = 1;
++					rq = next_rq;
++				}
++			} else {
++				printk("sstf_dispatch() - Moving forward...\n");
++
++				// Check where next request is located in respect to current request
++				if (nd->head < next_rq->__sector) {
++					// Request is farther up
++					rq = next_rq;
++				} else {
++					// Request is farther back
++					nd->direction = 0;
++					rq = prev_rq;
++				}
++			}
++		} else {
++			// Only one node in list if next is also prev
++			printk("sstf_dispatch() - Only one request...\n");
++			rq = next_rq;
++		}
++		printk("sstf_dispatch() - Running...\n");
++
++		// Delete from queue
++		list_del_init(&rq->queuelist);
++
++		// Get read head new position
++		nd->head = blk_rq_pos(rq) + blk_rq_sectors(rq);
++
++		// Send elevator the request
++		elv_dispatch_add_tail(q, rq);
++
++		printk("sstf_dispatch() - Finished running!\n");
++		printk("sstf_dispatch() - SSTF reading: %llu\n", (unsigned long long) rq->__sector);
++		return 1;
++	}
++	return 0;
++}
++
++static void sstf_add_request(struct request_queue *q, struct request *rq)
++{
++    struct sstf_data *nd = q->elevator->elevator_data;
++    struct request *next_rq, *prev_rq;
++
++	printk("Look Algorithm: sstf_add_request() - Starting up add!\n");
++
++    if (list_empty(&nd->queue)) {
++		printk("sstf_add_request() - Empty list...\n");
++
++		// Empty list, just add to the request
++        list_add(&rq->queuelist, &nd->queue);
++    } else {
++		printk("sstf_add_request() - Looking for a place for the request...\n");
++
++		// Look for where request could be joined into the request list
++        next_rq = list_entry(nd->queue.next, struct request, queuelist);
++        prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
++
++		// Interate through list and find exact location to add to
++        while (blk_rq_pos(rq) > blk_rq_pos(next_rq)) {
++            next_rq = list_entry(next_rq->queuelist.next, struct request, queuelist);
++            prev_rq = list_entry(prev_rq->queuelist.prev, struct request, queuelist);
++        }
++
++		// Add request to the proper location in list
++        list_add(&rq->queuelist, &prev_rq->queuelist);
++		printk("sstf_add_request() - Found location!\n");
++    }
++
++	printk("Look Algorithm: sstf_add_request() - SSTF adding: %llu\n", (unsigned long long) rq->__sector);
++}
++
++static struct request *
++sstf_former_request(struct request_queue *q, struct request *rq)
++{
++	struct sstf_data *nd = q->elevator->elevator_data;
++
++	if (rq->queuelist.prev == &nd->queue)
++		return NULL;
++	return list_entry(rq->queuelist.prev, struct request, queuelist);
++}
++
++static struct request *
++sstf_latter_request(struct request_queue *q, struct request *rq)
++{
++	struct sstf_data *nd = q->elevator->elevator_data;
++
++	if (rq->queuelist.next == &nd->queue)
++		return NULL;
++	return list_entry(rq->queuelist.next, struct request, queuelist);
++}
++
++static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
++{
++	struct sstf_data *nd;
++	struct elevator_queue *eq;
++
++	eq = elevator_alloc(q, e);
++	if (!eq)
++		return -ENOMEM;
++
++	nd = kmalloc_node(sizeof(*nd), GFP_KERNEL, q->node);
++	if (!nd) {
++		kobject_put(&eq->kobj);
++		return -ENOMEM;
++	}
++
++	nd->head = 0;
++	eq->elevator_data = nd;
++
++	INIT_LIST_HEAD(&nd->queue);
++
++	spin_lock_irq(q->queue_lock);
++	q->elevator = eq;
++	spin_unlock_irq(q->queue_lock);
++	return 0;
++}
++
++static void sstf_exit_queue(struct elevator_queue *e)
++{
++	struct sstf_data *nd = e->elevator_data;
++
++	BUG_ON(!list_empty(&nd->queue));
++	kfree(nd);
++}
++
++static struct elevator_type elevator_sstf = {
++	.ops = {
++		.elevator_merge_req_fn		 = sstf_merged_requests,
++		.elevator_dispatch_fn		 = sstf_dispatch,
++		.elevator_add_req_fn		 = sstf_add_request,
++		.elevator_former_req_fn		 = sstf_former_request,
++		.elevator_latter_req_fn		 = sstf_latter_request,
++		.elevator_init_fn		     = sstf_init_queue,
++		.elevator_exit_fn		     = sstf_exit_queue,
++	},
++	.elevator_name = "look",
++	.elevator_owner = THIS_MODULE,
++};
++
++static int __init sstf_init(void)
++{
++	return elv_register(&elevator_sstf);
++}
++
++static void __exit sstf_exit(void)
++{
++	elv_unregister(&elevator_sstf);
++}
++
++module_init(sstf_init);
++module_exit(sstf_exit);
++
++
++MODULE_AUTHOR("Brandon Lee");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("SSTF IO scheduler");
