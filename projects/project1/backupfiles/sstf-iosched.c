@@ -1,11 +1,6 @@
 /*
  * elevator sstf look
  */
-
-//TODO: Invert forward backward in dispatch
-// TODO: Basically wrote a couple scripts, fixed these bugs, now issue is that
-// the VM isnt using this as the default scheduler, perhaps make clean and redo?
-// THE PROBLEM IS IN ADD_REQUEST()
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
 #include <linux/bio.h>
@@ -31,34 +26,18 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 	if (!list_empty(&nd->queue)) {
 		struct request *rq, *next_rq, *prev_rq;
-		
+
 		// Next request and prev request get the request greater/less than current node
 		next_rq = list_entry(nd->queue.next, struct request, queuelist);
 		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
 
 		// Set rq, evaluate the nodes in list
-		if (next_rq == prev_rq) {
-			// Only one node in list if next is also prev
-			printk("Only one request!\n");
-			rq = next_rq;
-		} else {
-			printk("Multiple requests!");
+		if (next_rq != prev_rq) {
+			printk("sstf_dispatch() - Multiple requests!");
 
 			// Check direction
-			if (nd->direction == 1) {
-				printk("Moving forward!\n");
-
-				// Check where next request is located in respect to current request
-				if (nd->head < next_rq->__sector) {
-					// Request is farther up
-					rq = next_rq;
-				} else {
-					// Request is farther back
-					nd->direction = 0;
-					rq = prev_rq;
-				}
-			} else {
-				printk("Moving backward!\n");
+			if (nd->direction == 0) {
+				printk("sstf_dispatch() - Moving backward!\n");
 
 				// Check where next request is located in respect to current request
 				if (nd->head > prev_rq->__sector) {
@@ -69,9 +48,25 @@ static int sstf_dispatch(struct request_queue *q, int force)
 					nd->direction = 1;
 					rq = next_rq;
 				}
+			} else {
+				printk("sstf_dispatch() - Moving forward!\n");
+
+				// Check where next request is located in respect to current request
+				if (nd->head < next_rq->__sector) {
+					// Request is farther up
+					rq = next_rq;
+				} else {
+					// Request is farther back
+					nd->direction = 0;
+					rq = prev_rq;
+				}
 			}
+		} else {
+			// Only one node in list if next is also prev
+			printk("sstf_dispatch() - Only one request!\n");
+			rq = next_rq;
 		}
-		printk("Running!\n");
+		printk("sstf_dispatch() - Running!\n");
 
 		// Delete from queue
 		list_del_init(&rq->queuelist);
@@ -81,9 +76,9 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 		// Send elevator the request
 		elv_dispatch_add_tail(q, rq);
-		// elv_dispatch_sort(q, rq);
-		printk("Finished running!\n");
-		printk("SSTF reading: %llu\n", (unsigned long long) rq->__sector);
+
+		printk("sstf_dispatch() - Finished running!\n");
+		printk("sstf_dispatch() - SSTF reading: %llu\n", (unsigned long long) rq->__sector);
 		return 1;
 	}
 	return 0;
