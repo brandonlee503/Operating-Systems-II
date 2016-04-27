@@ -1,8 +1,6 @@
 /*
  * elevator sstf look
  */
-
-//TODO: Invert forward backward in dispatch
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
 #include <linux/bio.h>
@@ -12,6 +10,8 @@
 
 struct sstf_data {
 	struct list_head queue;
+
+	// Add representations for request direction and head
 	int direction;
 	sector_t head;
 };
@@ -23,27 +23,36 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq, st
 
 static int sstf_dispatch(struct request_queue *q, int force)
 {
-	printk("Look Algorithm: sstf_dispatch() - Starting up dispatch\n")
 	struct sstf_data *nd = q->elevator->elevator_data;
+	printk("Look Algorithm: sstf_dispatch() - Starting up dispatch!\n");
 
+	// Check if list has nodes
 	if (!list_empty(&nd->queue)) {
-		struct request *rq, next_rq, prev_rq;
+		struct request *rq, *next_rq, *prev_rq;
 
 		// Next request and prev request get the request greater/less than current node
-		next_rq = list_entry(nd->queue.next, struct request queuelist);
-		prev_rq = list_entry(nd->queue.prev, struct request queuelist);
+		next_rq = list_entry(nd->queue.next, struct request, queuelist);
+		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
 
 		// Set rq, evaluate the nodes in list
-		if (next_rq == prev_rq) {
-			// Only one node in list if next is also prev
-			printk("Only one request!\n");
-			rq = next_rq;
-		} else {
-			printk("Multiple requests!");
+		if (next_rq != prev_rq) {
+			printk("sstf_dispatch() - Multiple requests!");
 
 			// Check direction
-			if (nd->direction == 1) {
-				printk("Moving forward!\n");
+			if (nd->direction == 0) {
+				printk("sstf_dispatch() - Moving backward...\n");
+
+				// Check where next request is located in respect to current request
+				if (nd->head > prev_rq->__sector) {
+					// Request is farther back
+					rq = prev_rq;
+				} else {
+					// Request is farther up
+					nd->direction = 1;
+					rq = next_rq;
+				}
+			} else {
+				printk("sstf_dispatch() - Moving forward...\n");
 
 				// Check where next request is located in respect to current request
 				if (nd->head < next_rq->__sector) {
@@ -54,21 +63,13 @@ static int sstf_dispatch(struct request_queue *q, int force)
 					nd->direction = 0;
 					rq = prev_rq;
 				}
-			} else {
-				printk("Moving backward!\n");
-
-				// Check where next request is located in respect to current request
-				if (nd->head > prev_rq->__sector) {
-					// Request is farther back
-					req = prev_rq;
-				} else {
-					// Request is farther up
-					nd->direction = 1;
-					rq = next_rq;
-				}
 			}
+		} else {
+			// Only one node in list if next is also prev
+			printk("sstf_dispatch() - Only one request...\n");
+			rq = next_rq;
 		}
-		printk("Running!\n");
+		printk("sstf_dispatch() - Running...\n");
 
 		// Delete from queue
 		list_del_init(&rq->queuelist);
@@ -78,9 +79,9 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 		// Send elevator the request
 		elv_dispatch_add_tail(q, rq);
-		// elv_dispatch_sort(q, rq);
-		printk("Finished running!\n");
-		printk("SSTF reading: %llu\n", (unsigned long long) rq->__sector);
+
+		printk("sstf_dispatch() - Finished running!\n");
+		printk("sstf_dispatch() - SSTF reading: %llu\n", (unsigned long long) rq->__sector);
 		return 1;
 	}
 	return 0;
@@ -88,33 +89,35 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
-	printk("sstf_add_request() - Start")
-	struct request *next_rq, *prev_rq;
-	struct sstf_data *nd = q->elevator->elevator_data;
+    struct sstf_data *nd = q->elevator->elevator_data;
+    struct request *next_rq, *prev_rq;
 
-	if (list_empty(&nd->queue)) {
+	printk("Look Algorithm: sstf_add_request() - Starting up add!\n");
+
+    if (list_empty(&nd->queue)) {
+		printk("sstf_add_request() - Empty list...\n");
+
 		// Empty list, just add to the request
-		printk("Empty list!\n");
-		list_add(&rq->queuelist, &nd->queue);
-	} else {
-		printk("Looking for a place for the request!\n");
+        list_add(&rq->queuelist, &nd->queue);
+    } else {
+		printk("sstf_add_request() - Looking for a place for the request...\n");
 
 		// Look for where request could be joined into the request list
-		next_rq = list_entry(nd->queue.next, struct request, queuelist);
-		prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
+        next_rq = list_entry(nd->queue.next, struct request, queuelist);
+        prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
 
 		// Interate through list and find exact location to add to
-		while (blk_rq_pos(next_rq) < blk_rq_pos(rq)) {
-			next_rq = list_entry(nd->queue.next, struct request, queuelist);
-			prev_rq = list_entry(nd->queue.prev, struct request, queuelist);
-		}
+        while (blk_rq_pos(rq) > blk_rq_pos(next_rq)) {
+            next_rq = list_entry(next_rq->queuelist.next, struct request, queuelist);
+            prev_rq = list_entry(prev_rq->queuelist.prev, struct request, queuelist);
+        }
 
 		// Add request to the proper location in list
-		list_add(&rq->queuelist, &prev_rq->queuelist);
-		printk("Found location!\n");
-	}
+        list_add(&rq->queuelist, &prev_rq->queuelist);
+		printk("sstf_add_request() - Found location!\n");
+    }
 
-	printk("SSTF adding: %llu\n", (unsigned long long) rq->__sector);
+	printk("Look Algorithm: sstf_add_request() - SSTF adding: %llu\n", (unsigned long long) rq->__sector);
 }
 
 static struct request *
@@ -181,7 +184,7 @@ static struct elevator_type elevator_sstf = {
 		.elevator_init_fn		     = sstf_init_queue,
 		.elevator_exit_fn		     = sstf_exit_queue,
 	},
-	.elevator_name = "sstf",
+	.elevator_name = "look",
 	.elevator_owner = THIS_MODULE,
 };
 

@@ -1,0 +1,149 @@
+\documentclass[letterpaper,10pt,titlepage]{article}
+
+\setlength{\parindent}{0px}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage{alltt}
+\usepackage{float}
+\usepackage{color}
+\usepackage{url}
+\usepackage{listings}
+
+\usepackage{balance}
+\usepackage[TABBOTCAP, tight]{subfigure}
+\usepackage{enumitem}
+\usepackage{pstricks, pst-node}
+
+\usepackage{geometry}
+\geometry{textheight=8.5in, textwidth=6in}
+
+\newcommand{\cred}[1]{{\color{red}#1}}
+\newcommand{\cblue}[1]{{\color{blue}#1}}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\def\name{Brandon Lee}
+
+%% The following metadata will show up in the PDF properties
+\hypersetup{
+  colorlinks = true,
+  urlcolor = black,
+  pdfauthor = {\name},
+  pdfkeywords = {CS444 ``operating systems'' files filesystem I/O},
+  pdftitle = {CS 444 Project 2},
+  pdfsubject = {CS 444 Project 2},
+  pdfpagemode = UseNone
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{3.5cm}
+
+        \textbf{Project 2}
+
+        \vspace{0.5cm}
+
+        \textbf{Brandon Lee}
+
+        \vspace{0.8cm}
+
+        CS 444\\
+        Spring 2016\\
+        27 April 2016\\
+
+        \vspace{1cm}
+
+        \textbf{Abstract}\\
+
+        \vspace{0.5cm}
+
+        The I/O scheduler is a critical component in the computing world.  Schedulers and elevator algorithms are critical in building lower level kernel services.  The scope of the Shortest Seek Time First(SSTF) I/O scheduler assignment resides an issue in implementing correct elevator algorithms. The following approach utilizes the LOOK algorithm based off of an SSTF implementation of the existing NOOP scheduler.  The results include a scheduler that services requests based by the next shortest distance.
+
+        \vfill
+
+
+
+    \end{center}
+\end{titlepage}
+
+\newpage
+
+\section{Design}
+
+Essentially in order to implement the SSTF algorithm, I had to start out with the current NOOP implementation. However, because of SSTF's limitations in regards to starvation, an implementation of SCAN (or more specifically LOOK) is necessary in order to prevent the issue of starvation.  My LOOK algorithm essentially boils down to the following: At the starting point, the next closest request is serviced. The whole algorithm revolves around moving through the disk in an "elevator" fashion - where the algorithm goes down one direction and services all requests in that direction until there are no more (finds these next requests through the "LOOK" implementation).  Afterwards the algorithm goes in the opposite direction and the process repeats.\\
+
+\section{Version Control Log}
+
+\begin{tabular}{l l l}\textbf{Detail} & \textbf{Author} & \textbf{Description}\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d1787f12cc18301b0d264e55c117847cfbc1ddc4}{d1787f1} & Brandon Lee & CLean up print statements and todos\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/dc7a7b740312eeaff8f426bac4ea7b7e4dceb005}{dc7a7b7} & Brandon Lee & Get initial working scheduler bugfree and working with the VM/Kernel\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/192f7b3ece63a2b4059166cd1ad9455f5ca69a6d}{192f7b3} & Brandon Lee & Fixed some print statment bugs and missing semicolons\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f846d738bc81c25666c8b2815ae603b9f8b34e66}{f846d73} & Brandon Lee & Add shortcut scripts for version control\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d3113dd71f3b5073bc5ccfd5b9aaa08d55e0fb02}{d3113dd} & Brandon Lee & Change directory structure and add backup kconfig.iosched and Makefiles\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/05a7c8b6e4955f503678b0fb6bdec4922502f11c}{05a7c8b} & Brandon Lee & Cleanup sstf\_exit\_queue()\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/921d77bf114c91431870624ee635a9965ff74dbb}{921d77b} & Brandon Lee & Add reset head in sstf\_init\_queue()\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b0987ee71ac38c5ed9d9885761c4d1d917a525e7}{b0987ee} & Brandon Lee & First implementation of sstf\_add\_request()\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/bc8da82910c721486bf1f3edfe3a388f58f48812}{bc8da82} & Brandon Lee & Update print statement\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/2346667f4d13de671a53501db64a0dd2d009d7e3}{2346667} & Brandon Lee & Second implmentation of sstf\_dispatch()\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/03308acb7ed33005695d9b27169005beafcf02db}{03308ac} & Brandon Lee & First implmentation of sstf\_dispatch()\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/8eb1dd0e8e9d6064272f27dd5bf52af634b6c348}{8eb1dd0} & Brandon Lee & Initialize next and previous requests\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/15627c3ad0074838d32a689c5df0b55f1832d91f}{15627c3} & Brandon Lee & Add attributes to sstf\_data struct\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/52e499f46f88a6e1104e8a3d8f2c759c525f6d20}{52e499f} & Brandon Lee & Add required noop/sstf functions\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b3a272b869b7a4a75f7fdd8f8f1e3e0938eb8f29}{b3a272b} & Brandon Lee & Remove invalid sstf functions\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/9a940838fa9794ced7059dca532962cb5062f580}{9a94083} & Brandon Lee & Remove unnecessary functions for SSTF\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/197987b5a31da6c5b1f2dda8918ff01f49f8eae7}{197987b} & Brandon Lee & Outline required functions (print and stop merge)\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b1e96daf6ebc0b733520c55a371824b947841084}{b1e96da} & Brandon Lee & Update Noop to SSTF naming\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c62cf8fd85523293a8979a0f33f3fcf129dfc06c}{c62cf8f} & Brandon Lee & Add file directory\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/427a138ecba3b4d3b2076e086fc400a453f1e6b7}{427a138} & Brandon Lee & Add week 4 summary\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/2fe9e7be0033bb189532aa1b6ed60368961a9eac}{2fe9e7b} & Brandon Lee & Remove duplicate files\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/3933989f88d150178371f5a51df089809001deb3}{3933989} & Brandon Lee & Update directory naming\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/781f962c9334215974239d6444f5895159bad253}{781f962} & Brandon Lee & Complete first draft of writing assignment 1\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/75d0b72e1b4b91fc2057d10d87a03a75eb67383d}{75d0b72} & Brandon Lee & Clean up directory space\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0001e6daaec0b0f958ba177dcd431b63eae1c593}{0001e6d} & Brandon Lee & Update variable names and other minor changes\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/e56d09079e03367e583ac72250e33728a0d651a1}{e56d090} & Brandon Lee & Add more comments and update print statements\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f24b096ff0f0c0306da301b8b54d4a3d7d75cd19}{f24b096} & Brandon Lee & Minor comment/spacing changes\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a5d4a6fa3e3d981bdc98e1979dc407d143a3874f}{a5d4a6f} & Brandon Lee & Add comments and references\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/eea1b0342c27bc634419978453ae710d02eef85e}{eea1b03} & Brandon Lee & Implement philosopher names\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/117fc0bda999c55c5b1fb011a8e9fc6d84470767}{117fc0b} & Brandon Lee & Add javadocs and made some minor modifications\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/7c3af8a0c4de6a4ef03ce9d7af2b7af8cfbe0861}{7c3af8a} & Brandon Lee & Add thinking method, fix random and exceptions\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/beb900f767ccafaac3462b5a68be9627587657f3}{beb900f} & Brandon Lee & Add first implementation of DiningPhilosophers\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/4f303bd6cf93f8a6238d2ab0bf7f0f57d3c1ae0b}{4f303bd} & Brandon Lee & Organize concurrency directory part 2\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/73a056c5ce444a03cd56196fd8ba6bb013f1bde9}{73a056c} & Brandon Lee & Organize concurrency directory\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a8edd31487ed8d84660f5a795dc0a6f779d2c8fe}{a8edd31} & Brandon Lee & Add Week3 Summary\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a8d2b19686aef30634d471643cad88dcd91c080f}{a8d2b19} & Brandon Lee & Add tex project writeup\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c2d067844a4f23e6a33d7c7e4e9ffcece90510cb}{c2d0678} & Brandon Lee & Remove trace statement\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/459f01316fb990f1fd9ffa1fa6348fe736128d6c}{459f013} & Brandon Lee & Update makefile\\\hline
+\end{tabular}
+
+\newpage
+
+\section{Work Log}
+
+I started work about three or four days ago when I was attempting to get the kernel/VM to change the default scheduler. After changing a bunch of file directory issues, I was able to finally play around with the actual scheduler.  I started by utilizing the existing NOOP scheduler and mess around with a few of the core functions. After many iterations of this testing existing functions and building new components process, I was finally able to create a product to use. And what isn't shown in the git log was how many times I had to rebuild the Linux kernel and VM to get my scheduler to work with it. But basically after multiple days of trial and error, I was able to get it working.
+
+\section{Questions}
+
+\textit{What do you think the main point of this assignment is?}\\
+
+I thought that the main point of this assignment was to build a stronger understanding in Linux I/O schedulers and the various elevator algorithms. Another major objective of this assignment was to build skills in modifying lower levels of the Linux kernel.\\
+
+\textit{How did you personally approach the problem? Design decisions, algorithm, etc.}\\
+
+Initially, I was very uncertain and nervous on exactly what I needed to do in order to meet the requirements of the assignment. I began by looking through the Internet on what exactly an elevator algorithm is and the various variants and their minor differences. I stumbled on disk scheduling algorithms such as FCFS, SSTF, SCAN, CSCAN, LOOK, and CLOOK. I went through the current kernel's schedulers and used no-op as a reference to build a LOOK based algorithm. My implementation was mainly based on the existing no-op algorithm, plus a few modifications in dispatching and adding requests.\\
+
+\textit{How did you ensure your solution was correct? Testing details, for instance.}\\
+
+In order to ensure that my solution was correct, I went through numerous attempts at rebuilding my VM/Kernel with my scheduler implementation. After many broken kernels and re-installations, I was able to essentially develop an implementation to build and put print statements in the blocks to output exactly what's going on when the scheduler runs. After getting what I regard to be fairly displayable information. I concluded that my schedular had met the requirements.\\
+
+\textit{What did you learn?}\\
+
+I learned plenty on low level kernel hacking with creating and setting default schedulers. Lots of information regarding elevator algorithms and scheduling was also obtained through the assignment. Kernel data structures and Disk I/O were major areas I developed understanding in.
+
+\end{document}
