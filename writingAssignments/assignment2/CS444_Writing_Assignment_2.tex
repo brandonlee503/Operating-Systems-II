@@ -53,8 +53,8 @@
   urlcolor = black,
   pdfauthor = {\name},
   pdfkeywords = {CS444 ``Operating Systems'' files filesystem I/O},
-  pdftitle = {CS 444 Writing Assignment 1},
-  pdfsubject = {CS 444 Writing Assignment 1},
+  pdftitle = {CS 444 Writing Assignment 2},
+  pdfsubject = {CS 444 Writing Assignment 2},
   pdfpagemode = UseNone
 }
 
@@ -64,7 +64,7 @@
     \begin{center}
         \vspace*{3.5cm}
 
-        \textbf{Writing Assignment 1}
+        \textbf{Writing Assignment 2}
 
         \vspace{0.5cm}
 
@@ -74,7 +74,7 @@
 
         CS 444\\
         Spring 2016\\
-        22 April 2016\\
+        1 May 2016\\
 
         \vspace{1cm}
 
@@ -180,27 +180,33 @@ In the computing domain, I/O is basically the interaction between the machine an
 
 \subsection{Similarities}
 
-There are many various areas of I/O functionality that both Unix systems and Windows provide.  One of the first observable areas of I/O is device interaction and interface.  A notable commonality between Linux and Windows is that both have some form of a device access interface for I/O devices universally.  Specifically in the Windows world, this is known as the Windows Driver Model (WDM).  Written with the Windows Driver Kit (WDK), the WDM essentially sets a standard for which all external devices and their software drivers must conform to.  A few protocols of this model include various high level features such as power management and plug and play for Windows.***  The reason for such an interface as WDM to exist is to unify software access to all I/O devices for the ease of software developers.  This essentially cuts the worry about areas of device implementation and the like.\\
+There are many various areas of I/O functionality that both Unix systems and Windows provide.  One of the first observable areas of I/O is device interaction and interface.  A notable commonality between Linux and Windows is that both have some form of a device access interface for I/O devices universally.  Specifically in the Windows world, this is known as the Windows Driver Model (WDM).  Written with the Windows Driver Kit (WDK), the WDM essentially sets a standard for which all external devices and their software drivers must conform to.  A few protocols of this model include various high level features such as power management and plug and play for Windows.\cite{mwi8}  The reason for such an interface as WDM to exist is to unify software access to all I/O devices for the ease of software developers.  This essentially cuts the worry about areas of device implementation and the like.\\
 
-Focusing on the areas of physical hardware features, both Linux/FreeBSD and Windows support disk hibernation.  This feature essentially includes saving the machine's state onto the the disk and powering off to save energy.  In the Windows implementation of this, there are numerous operations such as entering sleep state to save power.  The other various optimizations include memory page compression and shutting off resources that are not in full use such as the display screen or disk drives.***\\
+Focusing on the areas of physical hardware features, both Linux/FreeBSD and Windows support disk hibernation.  This feature essentially includes saving the machine's state onto the the disk and powering off to save energy.  In the Windows implementation of this, there are numerous operations such as entering sleep state to save power.  The other various optimizations include memory page compression and shutting off resources that are not in full use such as the display screen or disk drives.\cite{mwi8}\\
 
-Delving a bit deeper into the software side of things, both Linux and Windows offer dynamically loadable modules.  The Linux implementation of this are known as shared objects (.so files).  Windows regards these modules as dynamically linked libraries (DLL).  In addition, both Linux and Windows support what is known as stacked device drivers.  This is essentially the concept that because many drivers share multiple functions with other drivers, some of these drivers can be run before others in an attempt to unify and not overlap functionality.***  The Linux implementation is known as stacked modules.  Windows is known to utilize dynamically loadable modules frequently in execution.  A popular example of dynamically loadable modules can be seen in the separation of physical device and device bus management.*** This separation essentially allows for simple use of software bus without issues in overlap with specific driver functionality.\\
+Delving a bit deeper into the software side of things, both Linux and Windows offer dynamically loadable modules.  The Linux implementation of this are known as shared objects (.so files).  Windows regards these modules as dynamically linked libraries (DLL).  In addition, both Linux and Windows support what is known as stacked device drivers.  This is essentially the concept that because many drivers share multiple functions with other drivers, some of these drivers can be run before others in an attempt to unify and not overlap functionality.\cite{stackedDeviceDrivers}  The Linux implementation is known as stacked modules.  Windows is known to utilize dynamically loadable modules frequently in execution.  A popular example of dynamically loadable modules can be seen in the separation of physical device and device bus management.\cite{mwi8} This separation essentially allows for simple use of software bus without issues in overlap with specific driver functionality.\\
 
-One final area of similarity that both FreeBSD/Linux and Windows share is asynchronous I/O and I/O calls.  Asynchronous I/O basically allows for a process to continue running after submitting an I/O request.  FreeBSD/Linux provides various system calls through the POSIX synchronous I/O interface (AIO).  Linux system calls through AIO include various methods such as io\_getevents(),  io\_submit(), io\_cancel(), and io\_setup().  The Windows implementation also provides similar system calls which vary from creating event objects to specifying completion events.  Specifically more towards I/O between Linux and Windows, there are many various I/O file system calls, which vary in Linux as open(), close(), read(), write(), and ioctl().***  In Windows, the I/O subsystem handles what is known as I/O request packets (IRP) that specify commands similar to the Linux system call methods above.  Such Windows commands include: OPEN, CLOSE, READ, WRITE, and IOCTL.***\\
+One final area of similarity that both FreeBSD/Linux and Windows share is asynchronous I/O and I/O calls.  Asynchronous I/O basically allows for a process to continue running after submitting an I/O request.  FreeBSD/Linux provides various system calls through the POSIX synchronous I/O interface (AIO).  Linux system calls through AIO include various methods such as io\_getevents(),  io\_submit(), io\_cancel(), and io\_setup().  The figure below visually displays how the a few code snippets of these implementations. \cite{linuxAIO}  Take note of their parameters and calls.\\
+
+\lstinputlisting[caption=Asynchronous I/O Functions in Linux, style=customc]{linuxAIO.c}
+
+The Windows implementation also provides similar system calls which vary from creating event objects to specifying completion events.  Specifically more towards I/O between Linux and Windows, there are many various I/O file system calls, which vary in Linux as open(), close(), read(), write(), and ioctl().\cite{lkd14}  In Windows, the I/O subsystem handles what is known as I/O request packets (IRP) that specify commands similar to the Linux system call methods above.  Such Windows commands include: OPEN, CLOSE, READ, WRITE, and IOCTL.\cite{mwi8}  Below is some sample code listing a Windows driver function to handle incoming IRP requests. \cite{windowsIRP} Take note of the parameters and types.\\
+
+\lstinputlisting[caption=Windows I/O Request Packets, style=customc]{windowsIRP.c}
 
 \subsection{Differences}
 
 One of the first notable differences between FreeBSD, Linux, and Windows are their default schedulers.  They are respectively the ULE scheduler, the Completely Fair Scheduler, and the Windows Task Scheduler.  Each of these schedulers are fundamentally different for their different purposes.  However, one important caveat to note is that in Unix systems, the default schedulers can be changed to another scheduler if desired.\\
 
-To delve more into each of the individual schedulers, the ULE scheduler is essentially the successor of the BSD scheduler.  The ULE scheduler offers many features including improved execution and performance on uniprocessor systems.***  ULE attempts to be fair, but can be instructed to approach tasks of higher priority when needed.  The scheduler is devised with an old fashioned design of time slices and run queues.  Below is a figure of a comparison between the traditional FreeBSD scheduler versus the current ULE scheduler***.  Take note of the varied slopes between the different schedulers.\\
+To delve more into each of the individual schedulers, the ULE scheduler is essentially the successor of the BSD scheduler.  The ULE scheduler offers many features including improved execution and performance on uniprocessor systems.\cite{lkd14}  ULE attempts to be fair, but can be instructed to approach tasks of higher priority when needed.  The scheduler is devised with an old fashioned design of time slices and run queues.\\
 
-The Completely Fair Scheduler (CFS) takes a different approach on scheduling as it is based on red-black trees rather than on run queues as the orthodox schedulers.  This can be motivated by the O(log N) CPU time complexity of red-black trees.***  One important note to take is that CFS utilizes nanoseconds for time incremental units.  The figure below visually displays how the CFS is implemented.***  Take note of the FIFO data structures and time slices.\\
+The Completely Fair Scheduler (CFS) takes a different approach on scheduling as it is based on red-black trees rather than on run queues as the orthodox schedulers.  This can be motivated by the O(log N) CPU time complexity of red-black trees.\cite{lkd14}  One important note to take is that CFS utilizes nanoseconds for time incremental units.\\
 
-In the Windows world, everything is a bit different.  One of the differences Windows has in contrast with Unix systems is the Plug and Play I/O system.  This subsystem, implemented with a kernel mode Plug and Play manager, includes features that allows for the automatic recognition of foreign devices.***  This recognition consists of the identification and automatic download of necessary drivers for the external device.  Hardware resources are allocated through use of signals and requests sent through different buses including USB, SATA, and PCI.  This essentially allows Windows machines to be a lot friendlier and compatible with third party hardware.\\
+In the Windows world, everything is a bit different.  One of the differences Windows has in contrast with Unix systems is the Plug and Play I/O system.  This subsystem, implemented with a kernel mode Plug and Play manager, includes features that allows for the automatic recognition of foreign devices.\cite{mwi8}  This recognition consists of the identification and automatic download of necessary drivers for the external device.  Hardware resources are allocated through use of signals and requests sent through different buses including USB, SATA, and PCI.  This essentially allows Windows machines to be a lot friendlier and compatible with third party hardware.\\
 
 \subsection{Similarities/Differences - Why?}
 
-The universal interface for drivers prevalent in FreeBSD/Linux and Windows can be justified by the open range of device support as well as the uncomplicatedness it brings for software development.  The similarities of file system calls in each operating system can be attributed to the way that block devices handle sectors and random access.***  Because of the parallels between block manipulation, these system calls are essentially generic between the different file systems.\\
+The universal interface for drivers prevalent in FreeBSD/Linux and Windows can be justified by the open range of device support as well as the uncomplicatedness it brings for software development.  The similarities of file system calls in each operating system can be attributed to the way that block devices handle sectors and random access.  Because of the parallels between block manipulation, these system calls are essentially generic between the different file systems.\\
 
 In the more physical hardware areas, the motive for both Unix and Windows system to support hibernation can be drawn towards the fact that power management is a major aspect in user experience, ultimately resulting in stronger demand and ultimately support for such software.  As a result, the Windows operating system, being the massive market software it is, has very well established power saving software.\\
 
@@ -212,5 +218,5 @@ Windows Plug and Play is one of the more modern and innovative practical I/O sub
 
 \newpage
 \bibliographystyle{plain}
-\bibliography{CS444_Writing_Assignment_1}
+\bibliography{CS444_Writing_Assignment_2}
 \end{document}
