@@ -57,26 +57,44 @@ int randomNumberGenerator(int min, int max) {
     return number;
 }
 
-// Cleanup and exit
-void signalCatch(int signal) {
-    printf("Catch signal: %d\n", signal);
-    kill(0, signal);
-    exit(0);
-}
-
-void inserter(/* arguments */) {
+void *inserter(/* arguments */) {
     /* code */
 }
 
-void searcher(/* arguments */) {
+void *searcher(/* arguments */) {
     /* code */
 }
 
-void deleter(/* arguments */) {
+void *deleter(/* arguments */) {
     /* code */
 }
 
 int main(int argc, char const *argv[]) {
-    /* code */
+
+    // Instantiate threads
+    pthread_t searchThread[3], insertThread[3], deleteThread[3];
+
+    // Instantiate linked list
+    struct linkedList *theLinkedList;
+    theLinkedList = (struct linkedList *)malloc(sizeof(struct linkedList));
+    theLinkedList->value = randomNumberGenerator(1, 10);
+    head = theLinkedList;
+    head->next = NULL;
+
+    // Create search, insert, and delete pthreads
+    int i;
+    for (i = 0; i < 3; i++) {
+        pthread_create(&searchThread[i], NULL, searcher, NULL);
+        pthread_create(&insertThread[i], NULL, inserter, NULL);
+        pthread_create(&deleteThread[i], NULL, deleter, NULL);
+    }
+
+    // Start up!
+    for (i = 0; i < 3; i++) {
+        pthread_join(searchThread[i], NULL);
+        pthread_join(insertThread[i], NULL);
+        pthread_join(deleteThread[i], NULL);
+    }
+
     return 0;
 }
