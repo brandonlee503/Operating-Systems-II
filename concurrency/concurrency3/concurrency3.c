@@ -6,7 +6,7 @@
 #include <signal.h>
 #include "mt19937ar.c"
 
-//Global variables
+// Global variables
 struct linkedList list;
 int inserters, searchers, deleters, number;
 
@@ -21,6 +21,7 @@ struct linkedList {
     struct node *current;
 };
 
+// The following 3 functions are essentially the same as my previous implementation in Assignment 1.
 // Boilerplate for setting up ASM registers
 void setRegisters() {
     // Set eax else core dump
