@@ -8,18 +8,17 @@
 
 // Global variables
 struct linkedList list;
-int inserters, searchers, deleters, number;
+int eax, ebx, ecx, edx;
+int searchers, inserters, deleters, number;
 
-struct node {
-    int value;
-    struct node *next;
-};
+pthread_mutex_t searchLock;
+pthread_mutex_t insertLock;
+pthread_mutex_t deleteLock;
 
 struct linkedList {
-    int nodes;
-    struct node *head;
-    struct node *current;
-};
+    int value;
+    struct node *next;
+} *head;
 
 // The following 3 functions are essentially the same as my previous implementation in Assignment 1.
 // Boilerplate for setting up ASM registers
