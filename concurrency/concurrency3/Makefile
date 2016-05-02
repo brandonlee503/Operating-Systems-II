@@ -11,44 +11,13 @@ TRG	= $(SRC:%.tex=%.dvi)
 PSF	= $(SRC:%.tex=%.ps)
 PDF	= $(SRC:%.tex=%.pdf)
 
-all: concurrency1 pdf
+all: concurrency3
 
-pdf: $(PDF)
+concurrency3: concurrency3.o
+	gcc concurrency3.o -o assignment3 -pthread
 
-ps: $(PSF)
-
-$(TRG): %.dvi: %.tex $(EXAMPLES)
-	#one way of including source code is to use pygments
-	#pygmentize -f latex -o __${EXAMPLES}.tex ${EXAMPLES}
-	#requires that you \include{pygments.tex} in your preamble
-
-	$(LATEX) $<
-	#$(BIBTEX) $(<:%.tex=%)
-	$(LATEX) $<
-	$(LATEX) $<
-	#remove the pygmentized output to avoid cluttering up the directory
-	#rm __${SRC}.tex
-
-
-$(PSF):%.ps: %.dvi
-	$(DVIPS) -R -Poutline -t letter $< -o $@
-
-$(PDF): %.pdf: %.ps
-	ps2pdf $<
-
-show: $(TRG)
-	@for i in $(TRG) ; do $(XDVI) $$i & done
-
-showps: $(PSF)
-	@for i in $(PSF) ; do $(GH) $$i & done
-
-concurrency1: concurrency1.o
-	gcc concurrency1.o -o assignment1 -pthread
-
-concurrency1.o:
-	gcc -c concurrency1.c -g
-
-#all: concurrency1 pdf
+concurrency3.o:
+	gcc -c concurrency3.c -g
 
 clean:
 	rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg assignment1 *.o *.out *.log *.aux *~
