@@ -82,7 +82,7 @@ void *inserter() {
     int randomNumber;
     struct linkedList insertLinkedList, **tail;
     while (1) {
-        if (linkedListSize < 20) {
+        if (linkedListSize() < 20) {
             if (!pthread_mutex_trylock(&insertLock)) {
                 randomNumber = randomNumberGenerator(1, 10);
                 insertLinkedList = (struct linkedList *)malloc(sizeof(struct linkedList));
@@ -111,8 +111,58 @@ void *inserter() {
     }
 }
 
-void *deleter(/* arguments */) {
-    /* code */
+void *deleter() {
+    int deleteNode;
+    struct linkedList *deleteLinkedList, *previous;
+
+    while (1) {
+
+        // If there's still nodes to delete
+        if (linkedListSize() > 1) {
+
+            // Check other locks
+            if (!pthread_mutex_trylock(&insertLock)) {
+                if (!pthread_mutex_trylock(&searchLock)) {
+
+                    // Start at the front
+                    deleteLinkedList = head;
+
+                    // Randomly select value
+                    deleteNode = randomNumberGenerator(1, 10);
+
+                    // While there's still nodes in the linked list
+                    while (deleteLinkedList != NULL) {
+
+                        // If the current node has the same value as our target
+                        if (deleteLinkedList->value == deleteNode) {
+                            printf("Deleting value: %d\n", deleteNode);
+
+                            // Move head if on head node, otherwise no worries and increment up
+                            if (deleteLinkedList == head) {
+                                head = deleteLinkedList->next;
+                                free(deleteLinkedList);
+                                break;
+                            } else {
+                                previous->next = deleteLinkedList->next;
+                                free(deleteLinkedList);
+                                break;
+                            }
+                        } else {
+                            previous = deleteLinkedList;
+                            deleteLinkedList = deleteLinkedList->next;
+                        }
+                    }
+
+                    pthread_mutex_unlock(&searchLock);
+                }
+
+                pthread_mutex_unlock(&insertLock);
+            }
+
+            // TODO: Fix
+            sleep(2);
+        }
+    }
 }
 
 int main(int argc, char const *argv[]) {
