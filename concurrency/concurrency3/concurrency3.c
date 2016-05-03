@@ -17,7 +17,7 @@ pthread_mutex_t deleteLock;
 
 struct linkedList {
     int value;
-    struct node *next;
+    struct linkedList *next;
 } *head;
 
 // The following 3 functions are essentially the same as my previous implementation in Assignment 1.
