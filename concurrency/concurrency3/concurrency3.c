@@ -57,8 +57,25 @@ int randomNumberGenerator(int min, int max) {
     return number;
 }
 
-void *inserter(/* arguments */) {
-    /* code */
+void *searcher() {
+    struct linkedList *searchLinkedList;
+    while (1) {
+        if (!pthread_mutex_trylock(&searchLock)) {
+            searchLinkedList = head;
+            if (searchLinkedList == NULL) {
+                printf("The list is empty!\n");
+                continue;
+            } else {
+                while (searchLinkedList != NULL) {
+                    printf("%d\n", searchLinkedList->value);
+                    searchLinkedList = searchLinkedList->next;
+                }
+                printf("\n");
+            }
+            pthread_mutex_unlock(&searchLock);
+        }
+        sleep(1);
+    }
 }
 
 void *searcher(/* arguments */) {
