@@ -78,8 +78,37 @@ void *searcher() {
     }
 }
 
-void *searcher(/* arguments */) {
-    /* code */
+void *inserter() {
+    int randomNumber;
+    struct linkedList insertLinkedList, **tail;
+    while (1) {
+        if (linkedListSize < 20) {
+            if (!pthread_mutex_trylock(&insertLock)) {
+                randomNumber = randomNumberGenerator(1, 10);
+                insertLinkedList = (struct linkedList *)malloc(sizeof(struct linkedList));
+
+                printf("Inserting value: %d\n", randomNumber);
+                insertLinkedList->value = randomNumber;
+                insertLinkedList->next = NULL;
+                tail = &head;
+
+                if (head == NULL) {
+                    head == insertLinkedList;
+                } else {
+                    // TODO: Make this not suck
+                    while (*tail != NULL) {
+                        tail = &((*tail)->next);
+                    }
+
+                    *tail = insertLinkedList;
+                }
+
+                pthread_mutex_unlock(&insertLock);
+                // TODO: Update times
+                sleep(5);
+            }
+        }
+    }
 }
 
 void *deleter(/* arguments */) {
