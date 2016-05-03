@@ -20,6 +20,6 @@ concurrency3.o:
 	gcc -c concurrency3.c -g
 
 clean:
-	rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg assignment1 *.o *.out *.log *.aux *~
+	rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg assignment3 *.o *.out *.log *.aux *~
 
 .PHONY: all show clean ps pdf showps
