@@ -1,3 +1,9 @@
+/**
+ * Brandon Lee
+ * CS 444 Kevin McGrath
+ * Concurrency 3
+ * 4 May 2016
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,6 +21,7 @@ pthread_mutex_t searchLock;
 pthread_mutex_t insertLock;
 pthread_mutex_t deleteLock;
 
+// Data structure implementation of a linked list
 struct linkedList {
     int value;
     struct linkedList *next;
@@ -36,6 +43,7 @@ int rdrand(int *number) {
     return (int) err;
 }
 
+// Generates random number with implementation depending on the executing machine
 int randomNumberGenerator(int min, int max) {
     int number = 0;
     setRegisters();
@@ -57,6 +65,7 @@ int randomNumberGenerator(int min, int max) {
     return number;
 }
 
+// Get the size of linked list
 int getLinkedListSize() {
     struct linkedList *sizeList;
     sizeList = head;
@@ -69,15 +78,22 @@ int getLinkedListSize() {
     return i;
 }
 
+// Searcher thread implementation
 void *searcher() {
     struct linkedList *searchLinkedList;
+
+    // Continuously search list, attempting to access resource through lock
     while (1) {
         if (!pthread_mutex_trylock(&searchLock)) {
             searchLinkedList = head;
+
+            // Check for empty list
             if (searchLinkedList == NULL) {
                 printf("The list is empty!\n");
                 continue;
             } else {
+
+                // Search through the list and print
                 while (searchLinkedList != NULL) {
                     printf("%d\n", searchLinkedList->value);
                     searchLinkedList = searchLinkedList->next;
@@ -90,12 +106,17 @@ void *searcher() {
     }
 }
 
+// Inserter thread implementation
 void *inserter() {
     int randomNumber;
     struct linkedList *insertLinkedList, **tail;
+
+    // Continuously check the whole list, attempting to access resource through lock
     while (1) {
         if (getLinkedListSize() < 20) {
             if (!pthread_mutex_trylock(&insertLock)) {
+
+                // Generate number and list to insert
                 randomNumber = randomNumberGenerator(1, 10);
                 insertLinkedList = (struct linkedList *)malloc(sizeof(struct linkedList));
 
@@ -104,10 +125,11 @@ void *inserter() {
                 insertLinkedList->next = NULL;
                 tail = &head;
 
+                // Create new list if empty
                 if (head == NULL) {
                     head == insertLinkedList;
                 } else {
-                    // TODO: Make this not suck
+                    // Otherwise while there's a tail, set it
                     while (*tail != NULL) {
                         tail = &((*tail)->next);
                     }
@@ -116,17 +138,18 @@ void *inserter() {
                 }
 
                 pthread_mutex_unlock(&insertLock);
-                // TODO: Update times
-                sleep(5);
+                sleep(2);
             }
         }
     }
 }
 
+// Deleter thread implementation
 void *deleter() {
     int deleteNode;
     struct linkedList *deleteLinkedList, *previous;
 
+    // Continuously check the whole list, attempting to access resource through lock
     while (1) {
 
         // If there's still nodes to delete
@@ -170,8 +193,7 @@ void *deleter() {
 
                 pthread_mutex_unlock(&insertLock);
             }
-
-            // TODO: Fix
+            
             sleep(2);
         }
     }
