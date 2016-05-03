@@ -57,6 +57,18 @@ int randomNumberGenerator(int min, int max) {
     return number;
 }
 
+int getLinkedListSize() {
+    struct linkedList *sizeList;
+    sizeList = head;
+    int i = 0;
+    while (sizeList != NULL) {
+        sizeList = sizeList->next;
+        i++;
+    }
+
+    return i;
+}
+
 void *searcher() {
     struct linkedList *searchLinkedList;
     while (1) {
@@ -80,9 +92,9 @@ void *searcher() {
 
 void *inserter() {
     int randomNumber;
-    struct linkedList insertLinkedList, **tail;
+    struct linkedList *insertLinkedList, **tail;
     while (1) {
-        if (linkedListSize() < 20) {
+        if (getLinkedListSize() < 20) {
             if (!pthread_mutex_trylock(&insertLock)) {
                 randomNumber = randomNumberGenerator(1, 10);
                 insertLinkedList = (struct linkedList *)malloc(sizeof(struct linkedList));
@@ -118,7 +130,7 @@ void *deleter() {
     while (1) {
 
         // If there's still nodes to delete
-        if (linkedListSize() > 1) {
+        if (getLinkedListSize() > 1) {
 
             // Check other locks
             if (!pthread_mutex_trylock(&insertLock)) {
