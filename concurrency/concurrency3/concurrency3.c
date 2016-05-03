@@ -89,13 +89,13 @@ void *searcher() {
 
             // Check for empty list
             if (searchLinkedList == NULL) {
-                printf("The list is empty!\n");
+                printf("Empty List!\n");
                 continue;
             } else {
 
                 // Search through the list and print
                 while (searchLinkedList != NULL) {
-                    printf("%d\n", searchLinkedList->value);
+                    printf("%d ", searchLinkedList->value);
                     searchLinkedList = searchLinkedList->next;
                 }
                 printf("\n");
@@ -113,14 +113,14 @@ void *inserter() {
 
     // Continuously check the whole list, attempting to access resource through lock
     while (1) {
-        if (getLinkedListSize() < 20) {
+        if (getLinkedListSize() < 25) {
             if (!pthread_mutex_trylock(&insertLock)) {
 
                 // Generate number and list to insert
                 randomNumber = randomNumberGenerator(1, 10);
                 insertLinkedList = (struct linkedList *)malloc(sizeof(struct linkedList));
 
-                printf("Inserting value: %d\n", randomNumber);
+                printf("Insert value: %d\n", randomNumber);
                 insertLinkedList->value = randomNumber;
                 insertLinkedList->next = NULL;
                 tail = &head;
@@ -170,7 +170,7 @@ void *deleter() {
 
                         // If the current node has the same value as our target
                         if (deleteLinkedList->value == deleteNode) {
-                            printf("Deleting value: %d\n", deleteNode);
+                            printf("Delete value: %d\n", deleteNode);
 
                             // Move head if on head node, otherwise no worries and increment up
                             if (deleteLinkedList == head) {
