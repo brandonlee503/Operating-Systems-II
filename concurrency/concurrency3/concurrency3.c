@@ -102,7 +102,7 @@ void *searcher() {
             }
             pthread_mutex_unlock(&searchLock);
         }
-        sleep(1);
+        sleep(2);
     }
 }
 
