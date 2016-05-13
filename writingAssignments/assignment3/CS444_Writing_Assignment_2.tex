@@ -74,7 +74,7 @@
 
         CS 444\\
         Spring 2016\\
-        1 May 2016\\
+        15 May 2016\\
 
         \vspace{1cm}
 
@@ -230,15 +230,15 @@ Another attribute Linux/FreeBSD and Windows shares as well are interrupt handler
 
 Specially in Linux, interrupt handlers are simply just regular C functions.  One feature that they have in the kernel is that they run in the interrupt context, a special area where the kernel invokes them in response to interrupts.\cite{lkd7}  It is in this context that the interrupt handler can be executed at any time when triggered by an interrupt.  The following code is an example of an interrupt handler in the Linux kernel.\cite{lkd7}  Observe the function calls and parameters below.\\
 
-% include diagram here
+\lstinputlisting[caption=Linux Kernel Interrupt Handler, style=customc]{linuxInterruptHandler.c}
 
 \subsection{Differences}
 
 One of the major differences between Linux and Windows interrupts is the \textit{top half bottom half paradigm} in Linux.  Because the two main goals of interrupt handlers are to perform swiftly and execute a large amount of work, the objectives are divergent.  As a result, interrupt processing is divided into two main parts known as the \textit{top half} and \textit{bottom half}.  The top half consists of the main interrupt handler while the bottom half contains the majority of the work that needs to be done.\cite{lkd7}  Essentially, code in the top half is run instantaneously while the bottom half bulk of tasks remains to be executed later on by the processer at a more convenient time.\\
 
-Another difference seen between Unix systems and Windows is the implementation of the Interrupt Dispatch Table (IDT).  In Windows, an IRQ is translated into an interrupt number and is subsequently indexed into the IDT.  At startup, the IDT is assigned pointers to the various kernel routines of the system that handle interrupts and other events.  Windows also is in charge of mapping hardware IRQs to these IDT interrupt numbers.  Typically in Windows, the maximum capacity of an IDT is 256 IRQs, however this ceiling can be altered by the machine's interrupt controller design.  Below is a figure of what viewing the IDT on Windows looks like, by running the command lkd> !idt.\cite{mwi3} Take note of the output columns and labels.\\
+Another difference seen between Unix systems and Windows is the implementation of the Interrupt Dispatch Table (IDT).  In Windows, an IRQ is translated into an interrupt number and is subsequently indexed into the IDT.  At startup, the IDT is assigned pointers to the various kernel routines of the system that handle interrupts and other events.  Windows also is in charge of mapping hardware IRQs to these IDT interrupt numbers.  Typically in Windows, the maximum capacity of an IDT is 256 IRQs, however this ceiling can be altered by the machine's interrupt controller design.  Below is a figure of what viewing the IDT on Windows looks like, by running the command: \textit{!idt}.\cite{mwi3} Take note of the output columns and labels.\\
 
-% include diagram here
+\lstinputlisting[caption=Windows Interrupt Dispatch Table, style=customc]{idtOutput.c}
 
 \subsection{Similarities/Differences - Why?}
 
