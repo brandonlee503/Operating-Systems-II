@@ -1,4 +1,4 @@
-TARGET=CS444_Writing_Assignment_2
+TARGET=CS444_Writing_Assignment_3
 PTHREAD=pthread1.c
 
 pdf: ps
