@@ -78,7 +78,7 @@
 
 \section{Design}
 
-I will first attempt to approach the problem through trial and error starting with a basic block driver with no encryption (sbull.c).  Afterwards, I will gradually implement the encryption system through various online resources, putting it together piece by piece, tracing back when an error appears and reverting to previous commits.  Most of the cryptology will be found in a single function, which handles an IO request.  Essentially the algorithm checks block by block to see if it should encrypt or decrypt and read or write.  Additionally there will be some crypto instantiation in the init() function.\\
+I will first attempt to approach the problem through trial and error starting with a basic block driver with no encryption (sbull.c).  Afterwards, I will gradually implement the encryption system through various online resources, putting it together piece by piece, tracing back when an error appears and reverting to previous commits.  Most of the cryptology will be found in a single function, which handles an IO request.  Essentially the algorithm checks block by block to see if it should encrypt or decrypt and read or write.  Additionally there will be some crypto instantiation in the init() function.
 
 \section{Version Control Log}
 
@@ -94,7 +94,7 @@ I will first attempt to approach the problem through trial and error starting wi
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/7923b6b7bf425b6f5cd26c8689676398f2b50636}{7923b6b} & Brandon Lee & Rename assignment 3 files and add finishing touches\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/69930131ebfccea311bd636268993ad0f9b88f2a}{6993013} & Brandon Lee & Add writing assignment 3 diagrams\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/08ff0eb46768dc2293c526f8126070a51a7fbb7b}{08ff0eb} & Brandon Lee & Add first draft of writing assignment 3\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0c69ff67b6e5b4a4aabcae682f77d40bb382f7be}{0c69ff6} & Brandon Lee & Add Week 6 & 7 summaries\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0c69ff67b6e5b4a4aabcae682f77d40bb382f7be}{0c69ff6} & Brandon Lee & Add Week 6 and 7 summaries\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/364a639020f9f8a745cb42dd565edc29db625c92}{364a639} & Brandon Lee & Update sleep time\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/519c330971eaf31bc32cbc543503dbb448558d20}{519c330} & Brandon Lee & Change print statements\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/cf3397d9b4dbfd76e4cd47568b99df71974537e4}{cf3397d} & Brandon Lee & Add comments\\\hline
@@ -115,76 +115,6 @@ I will first attempt to approach the problem through trial and error starting wi
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/3bcb782120ad1e9ebdd822c9f89775f330a93da9}{3bcb782} & Brandon Lee & Writing Assignment 2 - First draft\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/bec69fd13b88df6a21023c87fc89d88d8bcb1bcc}{bec69fd} & Brandon Lee & Fix section name typo\\\hline
 \href{https://github.com/brandonlee503/Operating-Systems-II/commit/2ed9cdb0f476813d75f1dc61a3b63a66e6dd835e}{2ed9cdb} & Brandon Lee & Restructure patch file directories\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/1e40b4a8b356207a41012b49f71c9f546613b438}{1e40b4a} & Brandon Lee & Update shortcut scripts\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/5474ae2582b9346800aba6fe06e45d195b612ca9}{5474ae2} & Brandon Lee & Assignment 2 - Add patch files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b981c9a933d4cf30a2794635fd0bfce0fa14f9fd}{b981c9a} & Brandon Lee & Finally add a readme\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0e6435d21d732734f04803b43675133ba2f4f85b}{0e6435d} & Brandon Lee & Modify file directory structure\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b000114135a201bd2d22d1209be952c7599616ed}{b000114} & Brandon Lee & Add gitlog script\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d1787f12cc18301b0d264e55c117847cfbc1ddc4}{d1787f1} & Brandon Lee & CLean up print statements and todos\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/dc7a7b740312eeaff8f426bac4ea7b7e4dceb005}{dc7a7b7} & Brandon Lee & Get initial working scheduler bugfree and working with the VM/Kernel\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/192f7b3ece63a2b4059166cd1ad9455f5ca69a6d}{192f7b3} & Brandon Lee & Fixed some print statment bugs and missing semicolons\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f846d738bc81c25666c8b2815ae603b9f8b34e66}{f846d73} & Brandon Lee & Add shortcut scripts for version control\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d3113dd71f3b5073bc5ccfd5b9aaa08d55e0fb02}{d3113dd} & Brandon Lee & Change directory structure and add backup kconfig.iosched and Makefiles\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/05a7c8b6e4955f503678b0fb6bdec4922502f11c}{05a7c8b} & Brandon Lee & Cleanup sstf_exit_queue()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/921d77bf114c91431870624ee635a9965ff74dbb}{921d77b} & Brandon Lee & Add reset head in sstf_init_queue()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b0987ee71ac38c5ed9d9885761c4d1d917a525e7}{b0987ee} & Brandon Lee & First implementation of sstf_add_request()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/bc8da82910c721486bf1f3edfe3a388f58f48812}{bc8da82} & Brandon Lee & Update print statement\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/2346667f4d13de671a53501db64a0dd2d009d7e3}{2346667} & Brandon Lee & Second implmentation of sstf_dispatch()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/03308acb7ed33005695d9b27169005beafcf02db}{03308ac} & Brandon Lee & First implmentation of sstf_dispatch()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/8eb1dd0e8e9d6064272f27dd5bf52af634b6c348}{8eb1dd0} & Brandon Lee & Initialize next and previous requests\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/15627c3ad0074838d32a689c5df0b55f1832d91f}{15627c3} & Brandon Lee & Add attributes to sstf_data struct\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/52e499f46f88a6e1104e8a3d8f2c759c525f6d20}{52e499f} & Brandon Lee & Add required noop/sstf functions\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b3a272b869b7a4a75f7fdd8f8f1e3e0938eb8f29}{b3a272b} & Brandon Lee & Remove invalid sstf functions\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/9a940838fa9794ced7059dca532962cb5062f580}{9a94083} & Brandon Lee & Remove unnecessary functions for SSTF\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/197987b5a31da6c5b1f2dda8918ff01f49f8eae7}{197987b} & Brandon Lee & Outline required functions (print and stop merge)\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b1e96daf6ebc0b733520c55a371824b947841084}{b1e96da} & Brandon Lee & Update Noop to SSTF naming\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c62cf8fd85523293a8979a0f33f3fcf129dfc06c}{c62cf8f} & Brandon Lee & Add file directory\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/427a138ecba3b4d3b2076e086fc400a453f1e6b7}{427a138} & Brandon Lee & Add week 4 summary\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/2fe9e7be0033bb189532aa1b6ed60368961a9eac}{2fe9e7b} & Brandon Lee & Remove duplicate files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/3933989f88d150178371f5a51df089809001deb3}{3933989} & Brandon Lee & Update directory naming\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/781f962c9334215974239d6444f5895159bad253}{781f962} & Brandon Lee & Complete first draft of writing assignment 1\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/75d0b72e1b4b91fc2057d10d87a03a75eb67383d}{75d0b72} & Brandon Lee & Clean up directory space\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0001e6daaec0b0f958ba177dcd431b63eae1c593}{0001e6d} & Brandon Lee & Update variable names and other minor changes\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/e56d09079e03367e583ac72250e33728a0d651a1}{e56d090} & Brandon Lee & Add more comments and update print statements\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f24b096ff0f0c0306da301b8b54d4a3d7d75cd19}{f24b096} & Brandon Lee & Minor comment/spacing changes\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a5d4a6fa3e3d981bdc98e1979dc407d143a3874f}{a5d4a6f} & Brandon Lee & Add comments and references\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/eea1b0342c27bc634419978453ae710d02eef85e}{eea1b03} & Brandon Lee & Implement philosopher names\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/117fc0bda999c55c5b1fb011a8e9fc6d84470767}{117fc0b} & Brandon Lee & Add javadocs and made some minor modifications\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/7c3af8a0c4de6a4ef03ce9d7af2b7af8cfbe0861}{7c3af8a} & Brandon Lee & Add thinking method, fix random and exceptions\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/beb900f767ccafaac3462b5a68be9627587657f3}{beb900f} & Brandon Lee & Add first implementation of DiningPhilosophers\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/4f303bd6cf93f8a6238d2ab0bf7f0f57d3c1ae0b}{4f303bd} & Brandon Lee & Organize concurrency directory part 2\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/73a056c5ce444a03cd56196fd8ba6bb013f1bde9}{73a056c} & Brandon Lee & Organize concurrency directory\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a8edd31487ed8d84660f5a795dc0a6f779d2c8fe}{a8edd31} & Brandon Lee & Add Week3 Summary\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a8d2b19686aef30634d471643cad88dcd91c080f}{a8d2b19} & Brandon Lee & Add tex project writeup\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c2d067844a4f23e6a33d7c7e4e9ffcece90510cb}{c2d0678} & Brandon Lee & Remove trace statement\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/459f01316fb990f1fd9ffa1fa6348fe736128d6c}{459f013} & Brandon Lee & Update makefile\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f1b3b48132042c9de816e26265369517f0a3ddcd}{f1b3b48} & Brandon Lee & Add Weekly Summary 1 & 2\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/fd453d656e36e41d6662454d07838c5ac1c3bed0}{fd453d6} & Brandon Lee & Should be functional now.. Clean experimental code and polish comments\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f9e994a89d9e55b03fb3dc60580c852b864e21dd}{f9e994a} & Brandon Lee & Experiment with consume\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a7c1b1d4c8e57b42d494d5d9652d5a4ccc00751b}{a7c1b1d} & Brandon Lee & Experiment with produce()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b0ecd50f3db9f8751666d006399f4a50dfe92c37}{b0ecd50} & Brandon Lee & Add bufferHasSpace()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/6fe524ce7f323d777919c9d0d7952121bd18930c}{6fe524c} & Brandon Lee & Cleanup trace statements/comments and print buffer for testing\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a582de6a19d6b5c3001d8c422eb3fc0209adf070}{a582de6} & Brandon Lee & Add function pointers for pthread_create()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a0f0321340b871fd0dcd35789ce6ceb9f547980c}{a0f0321} & Brandon Lee & First implementation attempt - consume()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/2f03508e9651a4a7673b49736332d652f07ec220}{2f03508} & Brandon Lee & FINALLY FOUND BUG\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d0350cdc8154dabf36a8ae309897e31c91710be9}{d0350cd} & Brandon Lee & Stupid bug - Add trace statements and comments\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c75000e38750ffe35c9e28ca6dfabc8abd672100}{c75000e} & Brandon Lee & Add comment reference\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/ab253d03603d660a5a5b27b9f6764441d5e2b63f}{ab253d0} & Brandon Lee & First implementation attempt - produce()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/b3b5750260bd9cf8adabcd0ca24855adf7d50079}{b3b5750} & Brandon Lee & Update buffer name and add comments\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/3d6a533c046f97cbb0a0ac6d3840920dcdd8fd34}{3d6a533} & Brandon Lee & First attempt to create pthreads\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/9426ae4f28223c8b994fd214f9e298d52814835c}{9426ae4} & Brandon Lee & Initialize pthreads and signals\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/4cc2f9b2ed449d28f2389898439c225e8c0ef1d2}{4cc2f9b} & Brandon Lee & Add signal catching\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/db0036bf79ff6d521b27752690d93d5755b7f2db}{db0036b} & Brandon Lee & Update bufferArray struct and add pthread condition globals\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/15c7e3a328350275d16b434e1c0f595a5a5fd233}{15c7e3a} & Brandon Lee & Fix randomNumberGenerator()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/6dfc3514d54aec67a649104be41f24df73757773}{6dfc351} & Brandon Lee & Implement Mersenne Twister and ASM instruction rdrand (only partially working...)\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/48c4939fc457964828f7b020f8d98003fc335198}{48c4939} & Brandon Lee & Modify makefile flags\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/56751ca219659e22cff314ce3ebcfda20eed6c52}{56751ca} & Brandon Lee & Add makefile\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f5960de6e29c1a85019166197e2a635a8ba9b48f}{f5960de} & Brandon Lee & Comment out main()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c12e1c1d30721ebe1788a68afa10db46a1f6c9e5}{c12e1c1} & Brandon Lee & Add gitignore file\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/7780a0661dae0ce564caff4a6e3ca395a8f64273}{7780a06} & Brandon Lee & Include Mersenne Twister and incorporate into skeleton\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/df2c60cc37e1058400e7eb60042fb6f5728dbc5c}{df2c60c} & Brandon Lee & Add skeleton layout for concurrency assignment 1\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0e476b2d4030e0350550a8cbda451926434605e9}{0e476b2} & Brandon Lee & Add gitignore and get initial kernel booting on VM\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/356b2f317a8ab32834e730b9fdfaa7344dec44ed}{356b2f3} & Brandon & Initial commit\\\hline
 \end{tabular}
 
 \newpage
@@ -214,7 +144,7 @@ I thought that the main point of this assignment was to develop a deeper underst
 
 \textit{How did you personally approach the problem? Design decisions, algorithm, etc.}\\
 
-As I mentioned above, I first attempted to approach the problem through much trial and error starting with a basic block driver with no encryption (sbull.c).  Afterwards, I gradually implement the encryption system through various online resources, putting it together piece by piece, tracing back when an error appears and reverting to previous commits.  Most of the cryptology can be found in the transfer function, which handles an IO request.  Essentially the algorithm checks block by block to see if it should encrypt or decrypt and read or write.  As it performs this check, it either performs encryption or decryption with crypto_cipher_encrypt_one() or crypto_cipher_decrypt_one().  Additionally there is some crypto instantiation in the init() function.  Eventually after much trial and error, I got everything to compile and into the VM.\\
+As I mentioned above, I first attempted to approach the problem through much trial and error starting with a basic block driver with no encryption (sbull.c).  Afterwards, I gradually implement the encryption system through various online resources, putting it together piece by piece, tracing back when an error appears and reverting to previous commits.  Most of the cryptology can be found in the transfer function, which handles an IO request.  Essentially the algorithm checks block by block to see if it should encrypt or decrypt and read or write.  As it performs this check, it either performs encryption or decryption with crypto\_cipher\_encrypt\_one() or crypto\_cipher\_decrypt\_one().  Additionally there is some crypto instantiation in the init() function.  Eventually after much trial and error, I got everything to compile and into the VM.\\
 
 \textit{How did you ensure your solution was correct? Testing details, for instance.}\\
 
