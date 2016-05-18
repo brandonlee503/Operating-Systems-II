@@ -77,6 +77,8 @@ static void sbd_transfer(struct sbd_device *dev, sector_t sector,
 		unsigned long nsect, char *buffer, int write) {
 	unsigned long offset = sector * logical_block_size;
 	unsigned long nbytes = nsect * logical_block_size;
+	u8 *destination;
+	u8 *source;
 
 	if (write)
 		printk("[ sbd.c: sbd_transfer() ] - WRITE Transferring Data\n");
@@ -107,6 +109,9 @@ static void sbd_transfer(struct sbd_device *dev, sector_t sector,
 
 		printk("[ sbd.c: sbd_transfer() ] - Write %lu bytes to device data\n", nbytes);
 
+		destination = dev->data + offset;
+		source = buffer;
+
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			/* Use crypto cipher handler and tfm to encrypt data one block at a time*/
 			crypto_cipher_encrypt_one(
@@ -115,9 +120,23 @@ static void sbd_transfer(struct sbd_device *dev, sector_t sector,
 					buffer + i				/* Source */
 					);
 		}
+
+		printk("[ sbd.c: sbd_transfer() ] - UNENCRYPTED DATA VIEW:\n");
+		for (i = 0; i < 100; i++) {
+			printk("%u", (unsigned) *destination++);
+		}
+
+		printk("\n[ sbd.c: sbd_transfer() ] - ENCRYPTED DATA VIEW:\n");
+		for (i = 0; i < 100; i++) {
+			printk("%u", (unsigned) *source++);
+		}
+		printk("\n");
 	}
 	else {
 		printk("[ sbd.c: sbd_transfer() ] - Read %lu bytes to device data\n", nbytes);
+
+		destination = dev->data + offset;
+		source = buffer;
 
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			/* Use crypto cipher handler and tfm to decrypt data one block at a time*/
@@ -127,6 +146,17 @@ static void sbd_transfer(struct sbd_device *dev, sector_t sector,
 					dev->data + offset + i	/* Source */
 					);
 		}
+
+		printk("[ sbd.c: sbd_transfer() ] - UNENCRYPTED DATA VIEW:\n");
+		for (i = 0; i < 100; i++) {
+			printk("%u", (unsigned) *destination++);
+		}
+
+		printk("\n[ sbd.c: sbd_transfer() ] - ENCRYPTED DATA VIEW:\n");
+		for (i = 0; i < 100; i++) {
+			printk("%u", (unsigned) *source++);
+		}
+		printk("\n");
 	}
 
 	printk("[ sbd.c: sbd_transfer() ] - Transfer and Encryption Completed\n");
