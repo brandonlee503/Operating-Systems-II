@@ -1,7 +1,7 @@
 /**
  * Brandon Lee
  * CS 444 Kevin McGrath
- * Concurrency 4
+ * Concurrency 4 Part 1
  * 19 May 2016
  */
 #include <stdlib.h>
