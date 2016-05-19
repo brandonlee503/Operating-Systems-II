@@ -1,14 +1,8 @@
-commit a2d2d1a1e265caa2c947b9d1fca616ce0bb921b2
-Author: Brandon Lee <brandonlee503@gmail.com>
-Date:   Mon May 16 23:11:36 2016 -0700
-
-    making patch file
-
-diff --git a/projects/project3/newd/Kconfig b/projects/project3/newd/Kconfig
+diff --git a/projects/project3/testing/Kconfig b/projects/project3/testing/Kconfig
 new file mode 100644
 index 0000000..027eee3
 --- /dev/null
-+++ b/projects/project3/newd/Kconfig
++++ b/projects/project3/testing/Kconfig
 @@ -0,0 +1,563 @@
 +#
 +# Block device driver configuration
@@ -573,11 +567,11 @@ index 0000000..027eee3
 +	  module will be called rsxx.
 +
 +endif # BLK_DEV
-diff --git a/projects/project3/newd/Makefile b/projects/project3/newd/Makefile
+diff --git a/projects/project3/testing/Makefile b/projects/project3/testing/Makefile
 new file mode 100644
 index 0000000..8072e3d
 --- /dev/null
-+++ b/projects/project3/newd/Makefile
++++ b/projects/project3/testing/Makefile
 @@ -0,0 +1,45 @@
 +#
 +# Makefile for the kernel block device drivers.
@@ -624,12 +618,12 @@ index 0000000..8072e3d
 +obj-$(CONFIG_BLK_DEV_RBD)     += rbd.o
 +
 +swim_mod-y	:= swim.o swim_asm.o
-diff --git a/projects/project3/newd/sbd.c b/projects/project3/newd/sbd.c
+diff --git a/projects/project3/testing/sbd.c b/projects/project3/testing/sbd.c
 new file mode 100644
-index 0000000..f42c750
+index 0000000..bd21433
 --- /dev/null
-+++ b/projects/project3/newd/sbd.c
-@@ -0,0 +1,358 @@
++++ b/projects/project3/testing/sbd.c
+@@ -0,0 +1,388 @@
 +/*
 + * A sample, extra-simple block driver. Updated for kernel 2.6.31.
 + *
@@ -709,6 +703,8 @@ index 0000000..f42c750
 +		unsigned long nsect, char *buffer, int write) {
 +	unsigned long offset = sector * logical_block_size;
 +	unsigned long nbytes = nsect * logical_block_size;
++	u8 *destination;
++	u8 *source;
 +
 +	if (write)
 +		printk("[ sbd.c: sbd_transfer() ] - WRITE Transferring Data\n");
@@ -739,6 +735,9 @@ index 0000000..f42c750
 +
 +		printk("[ sbd.c: sbd_transfer() ] - Write %lu bytes to device data\n", nbytes);
 +
++		destination = dev->data + offset;
++		source = buffer;
++
 +		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 +			/* Use crypto cipher handler and tfm to encrypt data one block at a time*/
 +			crypto_cipher_encrypt_one(
@@ -747,9 +746,23 @@ index 0000000..f42c750
 +					buffer + i				/* Source */
 +					);
 +		}
++
++		printk("[ sbd.c: sbd_transfer() ] - UNENCRYPTED DATA VIEW:\n");
++		for (i = 0; i < 100; i++) {
++			printk("%u", (unsigned) *destination++);
++		}
++
++		printk("\n[ sbd.c: sbd_transfer() ] - ENCRYPTED DATA VIEW:\n");
++		for (i = 0; i < 100; i++) {
++			printk("%u", (unsigned) *source++);
++		}
++		printk("\n");
 +	}
 +	else {
 +		printk("[ sbd.c: sbd_transfer() ] - Read %lu bytes to device data\n", nbytes);
++
++		destination = dev->data + offset;
++		source = buffer;
 +
 +		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 +			/* Use crypto cipher handler and tfm to decrypt data one block at a time*/
@@ -759,6 +772,17 @@ index 0000000..f42c750
 +					dev->data + offset + i	/* Source */
 +					);
 +		}
++
++		printk("[ sbd.c: sbd_transfer() ] - UNENCRYPTED DATA VIEW:\n");
++		for (i = 0; i < 100; i++) {
++			printk("%u", (unsigned) *destination++);
++		}
++
++		printk("\n[ sbd.c: sbd_transfer() ] - ENCRYPTED DATA VIEW:\n");
++		for (i = 0; i < 100; i++) {
++			printk("%u", (unsigned) *source++);
++		}
++		printk("\n");
 +	}
 +
 +	printk("[ sbd.c: sbd_transfer() ] - Transfer and Encryption Completed\n");
