@@ -1,7 +1,7 @@
 all: concurrency4part1
 
 concurrency4part1: concurrency4part1.o
-	gcc concurrency4part1.o -o assignment4part1 -pthread
+	gcc concurrency4part1.o -o concurrency4part1 -pthread
 
 concurrency4part1.o:
 	gcc -c concurrency4part1.c -g
