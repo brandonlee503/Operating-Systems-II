@@ -64,7 +64,7 @@
 
         \vspace{0.5cm}
 
-        Block devices and encryption are essential components in developing a fundamental understanding for low level systems.  The scope of the encrypted block device problem lies an encryption problem where device module creation need to be made in order to successfully produce a device driver.  The following approach utilizes the Linux Crypto API in order to ensure valid encryption of files.  The results include a driver mounted device which utilizes the implemented block driver.
+        Memory management in the Linux Kernel is an important layer to learn for mastery in all kernel memory allocation services. The scope of the SLOB SLAB problem lies in a best fit algorithm where the best location in memory needs to be selected rather than the first for increased performance. The following approach utilizes in modifying SLOB's first fit algorithm to best fit to ensure maximum memory usage. The results include a slob allocator utilizing best fit.
 
 
         \vfill
@@ -78,81 +78,60 @@
 
 \section{Design}
 
-Firstly, my initial attempt to approach this problem stems from observing SLUB, or how the current slob allocator functions. Only after fully understanding this will I be able to proceed with implmenting a new allocator. After observing that this default allocator uses the first-fit algorithm, which essentially uses the first page with enough memory - I proceed to do research on what best fit means. And after browsing the internet, I find that best fit actually looks through all the
-possible pages with enough memory space and evaluates the best option. After I implement this, I will be able to test between both algorithms and allocators for efficiency.
+Firstly, my initial attempt to approach this problem stems from observing SLUB, or how the current slob allocator functions. Only after fully understanding this will I be able to proceed with implementing a new allocator. After observing that this default allocator uses the first-fit algorithm, which essentially uses the first page with enough memory - I proceed to do research on what best fit means. And after browsing the internet, I find that best fit actually looks through all the possible pages with enough memory space and evaluates the best option. After I implement this, I will be able to test between both algorithms and allocators for efficiency.
 
 \section{Version Control Log}
 
 \begin{tabular}{l l l}\textbf{Detail} & \textbf{Author} & \textbf{Description}\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/07ce00358a3c43cccb0873bc728f0b3dcdc5c0d7}{07ce003} & Brandon Lee & Add crypto in init() and transfer()\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/e3e4fc2d9bf79904ee2e2713e35c1f0db0d3cc80}{e3e4fc2} & Brandon Lee & First implmentation of sbd\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/432ab809f9796c4299c9d8988631461690037695}{432ab80} & Brandon Lee & Update config files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/00b129b18f87d1ae6f1723f572e346d5a054f4e5}{00b129b} & Brandon Lee & Add writing assignment 3\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/3aff2c0cfc92a7d66fefb1f1fd3da2d4eb8e9f55}{3aff2c0} & Brandon Lee & Project 3 - Add config files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c34a6641307a82ff7e3a75b7ab352220d4cdde54}{c34a664} & Brandon Lee & Update naming of weekly summary 7\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/61b864eaea9f86247f5a478701335d0b9627bac1}{61b864e} & Brandon Lee & Remove Writing Assignment 2 extra files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d46a96bd2dcbf9fdae60d025b9b393fd583bdc79}{d46a96b} & Brandon Lee & Remove backup files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/7923b6b7bf425b6f5cd26c8689676398f2b50636}{7923b6b} & Brandon Lee & Rename assignment 3 files and add finishing touches\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/69930131ebfccea311bd636268993ad0f9b88f2a}{6993013} & Brandon Lee & Add writing assignment 3 diagrams\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/08ff0eb46768dc2293c526f8126070a51a7fbb7b}{08ff0eb} & Brandon Lee & Add first draft of writing assignment 3\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0c69ff67b6e5b4a4aabcae682f77d40bb382f7be}{0c69ff6} & Brandon Lee & Add Week 6 and 7 summaries\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/364a639020f9f8a745cb42dd565edc29db625c92}{364a639} & Brandon Lee & Update sleep time\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/519c330971eaf31bc32cbc543503dbb448558d20}{519c330} & Brandon Lee & Change print statements\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/cf3397d9b4dbfd76e4cd47568b99df71974537e4}{cf3397d} & Brandon Lee & Add comments\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/6957d8edeba7172d1020d1287a10dd3265df2578}{6957d8e} & Brandon Lee & Add linked list size function\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/bc03fb78725ed0ed4a8bc8b02fc00bd5eb0c2990}{bc03fb7} & Brandon Lee & Fix struct type\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a215eba032f6fc75c62acc6a20a628ad2babbff5}{a215eba} & Brandon Lee & Clean up makefile some more\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/61cf6ee1bf911834e628d6f3d5dd743d0d7b1340}{61cf6ee} & Brandon Lee & Update makefile\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/ac7f8185769dd2d21a835d6183173e73660ff7fe}{ac7f818} & Brandon Lee & First implementation of deleter\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d1f25cab376a6cb44f0bb4f1c6b0b3d917fc4e57}{d1f25ca} & Brandon Lee & First implementation of inserter\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/1d991e479d2e28ef279a91fff6f61228fe5aff44}{1d991e4} & Brandon Lee & First implmentation of searcher\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/ce52173ee0d65d97ece46268569a5ab749ea6de2}{ce52173} & Brandon Lee & Main function - first implmentation\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c208911c08faab924923b23d8750be5987c71fc7}{c208911} & Brandon Lee & Update linked list struct\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/e2d51e8d76a94e1b7aff691063caabe203cd24af}{e2d51e8} & Brandon Lee & Fix comments\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c4e97b9e39c3fdd1e75e5251806c8ff4014a2390}{c4e97b9} & Brandon Lee & Update makefile\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/4e7c7d345149160901300f36322cc74ad8a2e847}{4e7c7d3} & Brandon Lee & Concurrency 3 - Add outline and core files\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a154077e72b345a63298daafe214af91ef36eb54}{a154077} & Brandon Lee & Add Week 5 Summary\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0cd0eb1d541b9b592d322a34be7f9bae9e6da7ac}{0cd0eb1} & Brandon Lee & Writing Assignment 2 - First Draft Completed\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/3bcb782120ad1e9ebdd822c9f89775f330a93da9}{3bcb782} & Brandon Lee & Writing Assignment 2 - First draft\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/bec69fd13b88df6a21023c87fc89d88d8bcb1bcc}{bec69fd} & Brandon Lee & Fix section name typo\\\hline
-\href{https://github.com/brandonlee503/Operating-Systems-II/commit/2ed9cdb0f476813d75f1dc61a3b63a66e6dd835e}{2ed9cdb} & Brandon Lee & Restructure patch file directories\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/38039c99bf96bbe6f6eb588ac4ae111e490afc20}{38039c9} & Brandon Lee & Add test program for slob fragmentation\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d57978af54e1cf498d8dfc137ffe7c47950d14f5}{d57978a} & Brandon Lee & Add original slob with syscall modifications\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c704d654960d0ea3512f303108dd13570e327cd0}{c704d65} & Brandon Lee & First implementation of slob.c with best fit\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/4d5294aeeb4c78dc71d3e777e28d6c9ff3908a42}{4d5294a} & Brandon Lee & Project 4 First Commit - DESIGN\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/75a4c33496565e62949e348b5e6cc163ed53f632}{75a4c33} & Brandon Lee & Add Weekly Summary 10\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d9666d24606210bc67187245863e09263d6f27e2}{d9666d2} & Brandon Lee & Add concurrency 5 first attempt\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/0e0c4d0a6f6e759a0fc6ca9f6b81b6588fc5f4d8}{0e0c4d0} & Brandon Lee & Add Week 9 summary\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/45d50e9850f0b3d04f2665eb05c5908863bb9685}{45d50e9} & Brandon Lee & Add writing assignment 4\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/ff18e5206d67769b6957f07061d5c93caaaa4b08}{ff18e52} & Brandon Lee & Add week 8 summary\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/f0f456da83173a7bf659905fd93cb92667f95b19}{f0f456d} & Brandon Lee & Add conurrency 4 part 2 first draft\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/163787e5041a38ce540920ec3a33d54cee131f8b}{163787e} & Brandon Lee & Update naming\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/17bdfcbb718028296d431ccebebbc6c685130715}{17bdfcb} & Brandon Lee & Update makefile\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/d7ec26518c609d6cb39eb3cb817e67cb4d6c086c}{d7ec265} & Brandon Lee & Update patch file for project 3\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/1c37f3db2deaca98fb48a2bb170b76a71501f0b6}{1c37f3d} & Brandon Lee & Fix makefile and remove binaries\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/75719080678f7a720d35014acdfc906398a54654}{7571908} & Brandon Lee & Add concurrency 4 part 1 first draft\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/78fb6bc58f966692a9debecd343e42d427306a20}{78fb6bc} & Brandon Lee & Make patch file\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/e3433eabeefea7cd250094f74ac63830b8f25a9b}{e3433ea} & Brandon Lee & Add demo script for assignment 3\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/cc5f093dedd1119bdf07ed92aba96380446121a3}{cc5f093} & Brandon Lee & Add print statements to show encryption/decryption\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/c16dd63ec5361645175d76154b32233fbcf5c3a7}{c16dd63} & Brandon Lee & Remove unnecessary scripts\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/56b2fc718afcdc661b2760a9b37dea7ac9a69474}{56b2fc7} & Brandon Lee & Update scripts and add assignment 3 scripts\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/eea809aa39ede2088b25e04c4ff7c30790066aba}{eea809a} & Brandon Lee & Create project 3 patch file\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a2d2d1a1e265caa2c947b9d1fca616ce0bb921b2}{a2d2d1a} & Brandon Lee & making patch file\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/70974857a253c865b13f408d6d1d5313222b1f95}{7097485} & Brandon Lee & Update comments and print statements for clarity\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/46390b30cb13ff0b416c6133608383fa15f006d3}{46390b3} & Brandon Lee & 2nd Draft of Writeup\\\hline
+\href{https://github.com/brandonlee503/Operating-Systems-II/commit/a28f5aadad3d99edd90c21e5e4d2a08a9599107f}{a28f5aa} & Brandon Lee & First draft of Project 3 Writeup\\\hline
 \end{tabular}
 
 \newpage
 
 \section{Work Log}
 
-Work initially began with doing base research on what the assignment was asking, primarily using LDD3 and searching the web for additional information.  After figuring out exactly what we need to be doing, I got a basic block driver (sbull.c) started to go through much trial and error on setting up the whole system.  From building the module, to moving the module to the VM through SCP, installing the module with insmod, mounting with fdisk, making a filesystem with mkfs.ext2, and mounting with mount.  A list of commands can be found below on steps taken to get here.\\
-
-\begin{itemize}
-\item Get 3 files from patch
-\item make -j4 all (Should make the .ko file)
-\item Qemu - Remove of -net:none
-\item scp to get the module (.ko file) into the VM
-\item insmod sdb.ko
-\item fdisk /dev/sbd0p1 and make a partition
-\item mkfs.ext2 to make the file system (mkfs.ext2 /dev/sbd0p1)
-\item mount /dev/sbd0p1 /test
-\end{itemize}
-
-Afterwards, now I that I know everything is working.  I can start with actually implementing Crypto into the device.  And through much trial and error, crypto is implemented and files can be placed into the filesystem.\\
+Work initially began with doing base research on what the assignment was asking for, primarily with the best fit versus first fit algorithms for the SLOB allocator. After much research and strife, I finally began understanding what the assignment was asking for me to do. I implemented the best fit algorithm along with some system calls into the slob.c file and modified some syscall header and table files. After doing this and having system calls working correctly with the kernel, I wrote a short program to call the system calls and test my best fit algorithm from within the kernel.\\
 
 \section{Questions}
 
 \textit{What do you think the main point of this assignment is?}\\
 
-I thought that the main point of this assignment was to develop a deeper understanding of Linux block devices, modules, and the Crypto API.  I also thought that the purpose of this assignment was to build an understanding on how to bring modules over into the Virtual Machine in order to establish a foundation on importing Linux modules.\\
+I thought that the main point of this assignment was to develop an understanding of memory management alongside figuring out the fundamentals of Linux system calls and how to utilize them to request services from the kernel. I also thought that understanding the best fit algorithm was another major learning factor in this assignment.\\
 
 \textit{How did you personally approach the problem? Design decisions, algorithm, etc.}\\
 
-As I mentioned above, I first attempted to approach the problem through much trial and error starting with a basic block driver with no encryption (sbull.c).  Afterwards, I gradually implement the encryption system through various online resources, putting it together piece by piece, tracing back when an error appears and reverting to previous commits.  Most of the cryptology can be found in the transfer function, which handles an IO request.  Essentially the algorithm checks block by block to see if it should encrypt or decrypt and read or write.  As it performs this check, it either performs encryption or decryption with crypto\_cipher\_encrypt\_one() or crypto\_cipher\_decrypt\_one().  Additionally there is some crypto instantiation in the init() function.  Eventually after much trial and error, I got everything to compile and into the VM.\\
+As I mentioned above, I first attempted to approach the problem through much trial and error starting with a basic slob allocator with only first fit.  Afterwards, I gradually implemented the best fit algorithm system through various online resources, putting it together piece by piece, tracing back when an error appears and reverting to previous commits. The main difficulty of this assignment rested in setting up Linux system calls to reference the memory resources throughout the slob allocator. I decided to test with a simple C program that called these system calls and outputted incremental results.\\
 
 \textit{How did you ensure your solution was correct? Testing details, for instance.}\\
 
-I wrote a script that basically does all of the above required steps to set everything up including unpatching, making the .ko file, starting the VM, bringing over the module through SCP, installing the module, partitioning the drive, cleaning it up, making a file system, and mounting it with the device.\\
+I wrote a script that basically does all of the above required steps to set everything up. I tested the slob allocator with a test program I wrote which displayed the best fit algorithm to have an efficiency of about 96 percent while the original first fit algorithm had a mere 8 percent.\\
 
 \textit{What did you learn?}\\
 
-From this assignment I learned much on Linux block devices, encrypting blocks, and writing block drivers.  I learned how to bring files into the VM through SCP.  I learned how to partition a drive, how to make a file system, and how to mount devices.  I learned how to use some vital components in the Linux Crypto API and a few other aspects as well.\\
+From this assignment I learned much on Linux SLOB allocators, the best fit algorithm, and Linux kernel system calls. I learned how to modify memory management allocators, components of the memory management layer, and how to implement kernel system calls.\\
 
 \end{document}
