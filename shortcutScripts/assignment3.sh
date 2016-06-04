@@ -23,23 +23,8 @@ cp /scratch/spring2016/files/config-3.14.26-yocto-qemu /scratch/spring2016/cs444
 printf "Building fresh VM/kernel...\n"
 make -j4 all
 
-# Assignment 2 Stuff
-# Note this command may vary depending on your path to your files 
-#printf "Updating scheduler files\n"
-#yes | cp -rf /scratch/spring2016/cs444-074/projects/project2/backupfiles/* /scratch/spring2016/cs444-074/linux-yocto-3.14/block/
-
-# Set default scheduler
-#printf "Now need to manually set your default scheduler in 'make menuconfig'.\n"
-#make menuconfig
-
-# Build everything
-#printf "Building fresh VM/kernel...\n"
-#make -j4 all
-
 # Assigment 3 Stuff
 echo "Assignment 3 - Setting config files"
-
-#TODO: Update to take from patchfile
 yes | cp -rf /scratch/spring2016/cs444-074/projects/project3/backupfiles/* /scratch/spring2016/cs444-074/linux-yocto-3.14/drivers/block/
 make -j4 all
 
