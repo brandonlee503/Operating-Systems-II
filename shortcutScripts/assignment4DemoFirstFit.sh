@@ -12,7 +12,7 @@ make clean
 # Assigment 4 Stuff
 echo "Assignment 4 - Setting slob files"
 yes | cp -rf /scratch/spring2016/cs444-074/projects/project4/backupfiles/slobNewOld.c /scratch/spring2016/cs444-074/linux-yocto-3.14/mm/
-yes | mv /scratch/spring2016/cs444-074/linux-yocto-3.14/mm/slobOldNew.c /scratch/spring2016/cs444-074/linux-yocto-3.14/mm/slob.c
+yes | mv /scratch/spring2016/cs444-074/linux-yocto-3.14/mm/slobNewOld.c /scratch/spring2016/cs444-074/linux-yocto-3.14/mm/slob.c
 make -j4 all
 
 # And finally run
