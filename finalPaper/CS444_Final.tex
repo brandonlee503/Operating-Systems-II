@@ -1,0 +1,296 @@
+\documentclass[letterpaper,10pt,titlepage]{article}
+
+% This might mess up formatting
+\setlength{\parindent}{0pt}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage{alltt}
+\usepackage{float}
+\usepackage{color}
+\usepackage{url}
+\usepackage{listings}
+
+\usepackage{balance}
+\usepackage[TABBOTCAP, tight]{subfigure}
+\usepackage{enumitem}
+\usepackage{pstricks, pst-node}
+
+\usepackage{geometry}
+\geometry{textheight=8.5in, textwidth=6in}
+
+\newcommand{\cred}[1]{{\color{red}#1}}
+\newcommand{\cblue}[1]{{\color{blue}#1}}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+
+\def\name{Brandon Lee}
+
+%pull in the necessary preamble matter for pygments output
+\input{pygments.tex}
+
+%% The following metadata will show up in the PDF properties
+\hypersetup{
+  colorlinks = true,
+  urlcolor = black,
+  pdfauthor = {\name},
+  pdfkeywords = {CS444 ``Operating Systems'' files filesystem I/O},
+  pdftitle = {CS 444 Final Paper},
+  pdfsubject = {CS 444 Final Paper},
+  pdfpagemode = UseNone
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{3.5cm}
+
+        \textbf{Final Paper}
+
+        \vspace{0.5cm}
+
+        \textbf{Brandon Lee}
+
+        \vspace{0.8cm}
+
+        CS 444\\
+        Spring 2016\\
+        9 June 2016\\
+
+        \vspace{1cm}
+
+        \textbf{Abstract}\\
+
+        \vspace{0.5cm}
+
+        FreeBSD, Linux, and Windows each take fundamentally different approaches to what they regard as a low level operating system.  However, within these major disparities and differences lie some similarities and parallels.  The following analysis assesses to what extent do these operating systems both bridge and dispute in the areas of processes, threading, CPU scheduling, I/O, interrupts, and memory management.
+
+        \vfill
+
+    \end{center}
+\end{titlepage}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Intro}
+
+Operating systems are one of the most fundamental pieces of software to power the technological world which we live in today.  The predominance of devices and the operating systems running on them is a core aspect to take into perspective as a developer of any kind.  While all operating system serve the purpose of managing machine hardware and software resources for the user, various operating system go about this task in diverging techniques.  The following paper evaluates the similarities and differences between Unix systems (Linux, FreeBSD) and Windows, comparing their approaches on areas such as processes, threads, CPU scheduling, I/O, and interrupts.
+
+\section{Processes}
+
+In the realm of computing, the process is essentially an instance of a program that is running in execution.  Not only is a process the running program, but the open resources that it requires are also included such as necessary files, processer state, threads, and data section to name a few.  Basically, the process is the combination source code as well as all of the external resources needed for execution.
+
+\subsection{Similarities}
+
+To a great extent, the contents of processes in FreeBSD, Windows, and Linux all share some strong similarities with each other.  In particular, throughout these three operating systems, processes contain vital components such as their program code, private virtual address space, files, signals, and threads.  Process descriptors keep track of kernel stacks, CPU time, file descriptor tables, and machine registers.  In FreeBSD and Linux, processes are represented a structure known as a task\_struct while in Windows, they are represented by an Executive Process.  The Unix task\_struct includes accessible data pertaining to user space such as the stack, heap, and global variables.  The Windows Executive Process contains the Process Environment Block (PEB) which itself contains information including process heap, thread storage, and the executable image to be accessed from the user space.\cite{mwi1}\\
+
+Background processes are also a major component supported by each operating system.  In the Unix-like world, background processes are known as daemons and created upon a process forking and a parent dying.  The new child process creates a new session for itself by calling setsid() and essentially frees itself from the controlling terminal.\cite{lkd4}  In the Windows realm, background processes are known as Windows Services, which are managed by a special system process known as the System Control Manager.\cite{mwi5}  Both daemons and Windows Services are typically instantiated during system startup and run longstanding until the system is powered down.  Background processes are typically utilized to run specific jobs.  For example in Linux, daemons such as syslogd and sshd, implement the core features of system logging and manage incoming logins from remote host ssh connections.\cite{syslogd} Windows background processes such as DNSCache and Spooler resolves/saves domain names to IP addresses and manage files in memory for printing respectively.\cite{mwi2}
+
+\subsection{Differences}
+
+One of the major differences between FreeBSD/Linux processes and Windows processes starts with the formation of a new process.  In the Linux world, a process is created with the fork() command, which essentially duplicates the current process to create a new one.  The new process is referred to as the child process while the initial is regarded as the parent.  The Linux fork() method is typically implemented with the clone() call which specifies any resources that the parent and child process need to share.  Finally the exec() call loads an executable file into the process's address space and executes it.  These multiple steps allow for a fork to perform any additional work before being loaded into the address space.  Processes in FreeBSD/Linux are schedulable and can hold states such as running, runnable, interruptible, and zombie.\cite{lkd3}\\
+
+With Windows, a similar approach to process creation would be a call to CreateProcess.  This call essentially brings all of the above steps from Linux into one single operation to create an executable file (.exe file) and load a EPROCESS all into one step.\cite{mwi5}  Windows also includes a couple entities not found in FreeBSD/Linux known as fibers and jobs.  Fibers are threads scheduled in user space, rather than from the CPU scheduler.  A job is a group of processes combined to be managed together.  Jobs can indicate the amount of resources per thread in their processes.
+
+\subsection{Similarities/Differences - Why?}
+
+Process creation is the first dissimilarity between the operating systems.  The difference between the two methods of process creation between FreeBSD/Linux and Windows can be deduced from the design different patterns of the operating systems.  FreeBSD/Linux provides two separate calls for instantiating a new process and loading the executable image as the Linux design paradigm is oriented around modularity.  Each function primarily focuses on one aspect of the task as the Unix philosophy states: "Do one thing and do it well".\cite{philosophy}  Windows does not share this philosophy and keeps these process creation functions connected.  Windows does not see a benefit for the modularity as it does not expect any changes in the functionality of CreateProcess.\\
+
+Process address space are similar in FreeBSD/Linux, and Windows as it is necessary for these operating systems to provide some sort of structure in running individual programs with the abstraction of unlimited processer usage to get the most out of those processes.  This has enabled many developers to write a massive amount of programs as these applications do not necessary need to be concerned about the lower level aspects such as managing processer resources.  This is enabling for developers to work on higher level applications.\\
+
+User mode and kernel mode are another paradigm that is supported by FreeBSD/Linux and Windows.  This design is important for both multitasking operating systems because if one application crashes, the system as well as other processes would be protected.  The operating system would continue to function if a program within suddenly dies.  Furthermore, applications do not need to worry about the system when performing actions.  This design scheme is critical to the development of our modern operating systems today.\\
+
+FreeBSD, Linux, and Windows all support background processes as they are critical to the underlying services that a modern operating system typically provides.  Daemons and Windows Services are the foundation for many applications and processes to function as they do.  Without background processes, multitasking operating systems would not be computing as they do today.\\
+
+\section{Threads}
+
+Threads are a very common concept in process programming.  They are essentially an abstraction to provide multiple sequences of execution within a single program, allowing for the sharing of process resources.  Threads enable concurrency within a program - which can lead to parallelism in multiprocessor machines.
+
+\subsection{Similarities}
+
+A key caveat to take notice of is the how FreeBSD, Windows, and Linux all implement some sort of user and kernel mode.  Basically a thread can utilize a system call that allows the kernel to run kernel code on the behalf of the thread itself.  Threads contain separate stacks and program counters for running in kernel mode.  When the thread switches from kernel to user mode, these data structures and counters are saved and restarted.  In Unix like systems, elements such as the heap, stack, and global variables held the task\_struct are available in user space, but other data such as task state are only available in the kernel space.\cite{lkd4}  Specifically in FreeBSD/Linux, threading is implemented through the POSIX standard pthreads.  The following is an example of creating a pthread in Linux/FreeBSD.\cite{pthread1}  Note the method parameters and calls:\\
+
+\lstinputlisting[caption=pthreads in Unix, style=customc]{pthread1.c}
+
+Meanwhile in Windows systems, information accessible in user mode such as elements of the Windows process address space including the process environment block (PEB) and thread environment block (TEB).  The actual PEB data structure is only available in kernel mode, but can be handled through precise system calls.  These Windows data structures include much of the data described in the previous processes section.\\
+
+FreeBSD, Windows, and Linux all support threads that run only in kernel space.  FreeBSD and Linux kernel threads (Kernel threads) are instantiated when the machine is booted and do not have a separate process context or a task\_struct data structure.  Kernel threads are used to access information that is typically not open to user mode threads.  These tasks include low level jobs such as ksoftirqd to handle interrupts.  In the Windows world, these threads are known as system threads.  System threads are created with PsCreateSystemThread and do not have a TEB structure, similar to how kernel threads do not have a task\_struct structure.\cite{lkd4}  Both kernel threads and system threads do not have user process address space.\\
+
+The following is a respective example of threading with the Windows PSCreateSystemThread method. \cite{PsCreateSystemThread} Take note of the similarities and differences between the two different paradigms through the method syntax and parameters.
+
+\lstinputlisting[caption=PSCreateSystemThread in Windows, style=customc]{PsCreateSystemThread.c}
+
+\subsection{Differences}
+
+A major difference between FreeBSD, Windows, and Linux is found within application of threads.  In the FreeBSD/Linux world, threads are practically the same to typical processes, but just share resources with other process/threads.  However, in Windows processes must contain at least one thread.  It is these threads that get processed by the scheduler.  As Windows tends to group things into various data structures, the abstraction for this is known as the Executive Thread Block (ETHREAD).  To summarize, FreeBSD/Linux processes and threads are essentially the same other than the fact that threads share resources.  In Windows, processes are required to contain at least one thread in order to even run.  They are designed to be units of execution versus the overarching process, which is intended to manage resources.\cite{mwi5}  In Windows, only threads are able to be scheduled.  These thread states in Windows are similar to process states held in Linux with conditions such as running, ready, standby, waiting, terminated, initialized, and transition.\cite{lkd4}\\
+
+\subsection{Similarities/Differences - Why?}
+
+Threads are fundamentally different between FreeBSD, Linux, and Windows - for respectable reasons.  In FreeBSD/Linux, threads are focused on offering a method in sharing resources.  In Windows, threads are designed to perform quickly and efficiently.  Therefore in the Linux world, processes are almost essentially identical while in Windows, there exists a single data structure (ETHREAD) to represent threads.  While Unix treads have different address spaces, they share the same stack, heap, and global variables.  Windows threads are more schedulable and executable - ETHREADS do not hold resources, but include a pointer to the EPROCESS that created it.\cite{mwi5}  As a result, ETHREADS are quick and efficient.\\
+
+In Windows, only threads are able to hold schedulable states such as the Linux process states of runnable, sleeping, uninterruptable, traced, and stopped.  These states in Windows vocabulary are listed in the above section.  Processes in Windows are used as essentially utilized as abstract groupings of threads and resources.\\
+
+One similarity that FreeBSD/Linux and Windows do share however are their implementations of system and kernel threads.  These threads allow for jobs to be executed exclusively in kernel mode.\\
+
+\section{CPU Scheduling}
+
+At the heart of every multitasking operating system lies the scheduler.  CPU scheduling essentially plans out which, where, when, and how long does the processer allocate resources to between specific processes.  Essentially the goal of the scheduler is to always have the processer being utilized to maximum potential.
+
+\subsection{Similarities}
+
+In Linux world, the default scheduler is the Completely Fair Scheduler (CFS).  This scheduler replaces the old O(1) scheduler, but in the process also utilizes older concepts such as sleeper fairness - which compares sleeping tasks versus those on the queue to run.\\
+
+In FreeBSD, the default scheduler is the ULE scheduler.  This paradigm divides the scheduler into a high and a low level scheduler.  The high level scheduler's function is to order threads by priority for the CPU while the low level scheduler fetches the greatest priority thread in the queue and sends it to be run. The priority style scheduling found in FreeBSD can be observed in Windows as well.\\
+
+In the Windows realm, similarities are observable as Windows implements a type of priority system to rank various threads.  Factors that contribute to a thread's priority and affinity are assessed within a processer group, which is set using the scheduling API.  Priority is viewed by Windows through two different variables - the initial priority class for the process from original creation and individual thread priority.  Priority can also be increased and decreased depending on several possible variables.  Thread priority is not affected by its parent process in the sense that the scheduler views all threads as equal and initially attempts to give each thread equal time on the processor.\\
+
+\subsection{Differences}
+
+The main differences between FreeBSD, Linux, and Windows schedulers can be found in multiple areas.  Firstly, Linux uses a unified process and thread scheduler - which is CFS by default.  FreeBSD uses the ULE scheduler as default.  Windows utilizes process scheduling with a multilevel feedback queue.  The thread scheduler here recognizes high priority threads and the process scheduler wisely uses the feedback queue.  Another difference between Linux and Windows is are fibers, which are basically scheduled treads in user space rather than the kernel scheduling algorithm.\\
+
+\subsection{Similarities/Differences - Why?}
+
+The main similarities between FreeBSD and Windows is observable through the similarities of their priority based scheduling.  One can observe that the reasoning behind having priority based scheduling can be because it has proven in past systems to be an effective method of mostly fair scheduling.\\
+
+However, there do still exist differences between the two scheduling approaches.  As described before, in Windows - only threads have schedulable states as the scheduler is a bit more complex in the windows world.  Windows processes are not designed to be units of execution.  The reasoning for this is because threads are more lightweight in the operating system and therefore many more can exist at a single time.  Having a greater capacity for more threads results in a stronger environment for scheduling with threads rather than processes.\\
+
+\section{I/O}
+
+In the computing domain, I/O is basically the interaction between the machine and the user in the real world.  In the area of low level computing, I/O can be broken down to many different concepts and moving parts.  The block I/O layer is essentially the composition of all the different data structures and algorithms which encompass such an area.
+
+\subsection{Similarities}
+
+There are many various areas of I/O functionality that both Unix systems and Windows provide.  One of the first observable areas of I/O is device interaction and interface.  A notable commonality between Linux and Windows is that both have some form of a device access interface for I/O devices universally.  Specifically in the Windows world, this is known as the Windows Driver Model (WDM).  Written with the Windows Driver Kit (WDK), the WDM essentially sets a standard for which all external devices and their software drivers must conform to.  A few protocols of this model include various high level features such as power management and plug and play for Windows.\cite{mwi8}  The reason for such an interface as WDM to exist is to unify software access to all I/O devices for the ease of software developers.  This essentially cuts the worry about areas of device implementation and the like.\\
+
+Focusing on the areas of physical hardware features, both Linux/FreeBSD and Windows support disk hibernation.  This feature essentially includes saving the machine's state onto the the disk and powering off to save energy.  In the Windows implementation of this, there are numerous operations such as entering sleep state to save power.  The other various optimizations include memory page compression and shutting off resources that are not in full use such as the display screen or disk drives.\cite{mwi8}\\
+
+Delving a bit deeper into the software side of things, both Linux and Windows offer dynamically loadable modules.  The Linux implementation of this are known as shared objects (.so files).  Windows regards these modules as dynamically linked libraries (DLL).  In addition, both Linux and Windows support what is known as stacked device drivers.  This is essentially the concept that because many drivers share multiple functions with other drivers, some of these drivers can be run before others in an attempt to unify and not overlap functionality.\cite{stackedDeviceDrivers}  The Linux implementation is known as stacked modules.  Windows is known to utilize dynamically loadable modules frequently in execution.  A popular example of dynamically loadable modules can be seen in the separation of physical device and device bus management.\cite{mwi8} This separation essentially allows for simple use of software bus without issues in overlap with specific driver functionality.\\
+
+One final area of similarity that both FreeBSD/Linux and Windows share is asynchronous I/O and I/O calls.  Asynchronous I/O basically allows for a process to continue running after submitting an I/O request.  FreeBSD/Linux provides various system calls through the POSIX synchronous I/O interface (AIO).  Linux system calls through AIO include various methods such as io\_getevents(),  io\_submit(), io\_cancel(), and io\_setup().  The figure below visually displays how the a few code snippets of these implementations. \cite{linuxAIO}  Take note of their parameters and calls.\\
+
+\lstinputlisting[caption=Asynchronous I/O Functions in Linux, style=customc]{linuxAIO.c}
+
+The Windows implementation also provides similar system calls which vary from creating event objects to specifying completion events.  Specifically more towards I/O between Linux and Windows, there are many various I/O file system calls, which vary in Linux as open(), close(), read(), write(), and ioctl().\cite{lkd14}  In Windows, the I/O subsystem handles what is known as I/O request packets (IRP) that specify commands similar to the Linux system call methods above.  Such Windows commands include: OPEN, CLOSE, READ, WRITE, and IOCTL.\cite{mwi8}  Below is some sample code listing a Windows driver function to handle incoming IRP requests. \cite{windowsIRP} Take note of the parameters and types.\\
+
+\lstinputlisting[caption=Windows I/O Request Packets, style=customc]{windowsIRP.c}
+
+\subsection{Differences}
+
+One of the first notable differences between FreeBSD, Linux, and Windows are their default schedulers.  They are respectively the ULE scheduler, the Completely Fair Scheduler, and the Windows Task Scheduler.  Each of these schedulers are fundamentally different for their different purposes.  However, one important caveat to note is that in Unix systems, the default schedulers can be changed to another scheduler if desired.\\
+
+To delve more into each of the individual schedulers, the ULE scheduler is essentially the successor of the BSD scheduler.  The ULE scheduler offers many features including improved execution and performance on uniprocessor systems.\cite{lkd14}  ULE attempts to be fair, but can be instructed to approach tasks of higher priority when needed.  The scheduler is devised with an old fashioned design of time slices and run queues.\\
+
+The Completely Fair Scheduler (CFS) takes a different approach on scheduling as it is based on red-black trees rather than on run queues as the orthodox schedulers.  This can be motivated by the O(log N) CPU time complexity of red-black trees.\cite{lkd14}  One important note to take is that CFS utilizes nanoseconds for time incremental units.\\
+
+In the Windows world, everything is a bit different.  One of the differences Windows has in contrast with Unix systems is the Plug and Play I/O system.  This subsystem, implemented with a kernel mode Plug and Play manager, includes features that allows for the automatic recognition of foreign devices.\cite{mwi8}  This recognition consists of the identification and automatic download of necessary drivers for the external device.  Hardware resources are allocated through use of signals and requests sent through different buses including USB, SATA, and PCI.  This essentially allows Windows machines to be a lot friendlier and compatible with third party hardware.\\
+
+\subsection{Similarities/Differences - Why?}
+
+The universal interface for drivers prevalent in FreeBSD/Linux and Windows can be justified by the open range of device support as well as the uncomplicatedness it brings for software development.  The similarities of file system calls in each operating system can be attributed to the way that block devices handle sectors and random access.  Because of the parallels between block manipulation, these system calls are essentially generic between the different file systems.\\
+
+In the more physical hardware areas, the motive for both Unix and Windows system to support hibernation can be drawn towards the fact that power management is a major aspect in user experience, ultimately resulting in stronger demand and ultimately support for such software.  As a result, the Windows operating system, being the massive market software it is, has very well established power saving software.\\
+
+In the software side of things, dynamically loadable modules essentially allow for the machine to save memory through reusing modules among other modules. This has effectively grown and developed in both FreeBSD/Linux and Windows in their own respective flavors.  Uniformed drivers simplify software development and usability in both operating systems.\\
+
+Stacked device drivers hold a strong place in each operating systems as they provide excellent code reuse.  Their respective implementations in Linux and Windows provides very practical modularity between the various paradigms.  Asynchronous I/O can also be regarded as extremely useful as both operating systems require such fundamental process management in order to truly function as multiprocessing operating systems.  Wasting precious CPU time is one of the worst things the operating system can do.\\
+
+Windows Plug and Play is one of the more modern and innovative practical I/O subsystem implementations.  Because of the vast amount of users on the platform, it is essential for Windows to allow for devices from many different manufacturers to just work on the operating system.  The Windows user space is primarily made up of general purpose, casual users - thus resulting in the amount of driver support for almost anything one might need to plug in for use.  The Linux user space mainly revolves around tech-savvy users, whom of which have had experience on dealing with software and hardware interactions and require less help in regards to device I/O management.\\
+
+\section{Interrupts}
+
+One of the fundamental duties of an operating system is managing hardware and devices connected to the computer.  These range from keyboards and mice to hard drives.  Among these external devices, the drivers and hardware that power them are slower than the computer processer.  Because of this need to both run typical kernel level duties along with processing input and output to these devices, we utilize interrupts to power actions such as CPU polling.  Interrupts and interrupt handlers are what power how the kernel handles events.\\
+
+\subsection{Similarities}
+
+In both Linux/FreeBSD and Windows operating systems, interrupts essentially allow for hardware to communicate with the CPU.  For example, in a keyboard when a user types in characters, each key stroke's electrical signal is interpreted as an interrupt.  These electrical signals are generated asynchronously with the processer clock - resulting in the kernel to be able to be interrupted at any given moment to process an interrupt.\cite{lkd7}  After the interrupt is sent to the CPU, it is physically processed through an interrupt controller.\\
+
+Because devices can be drastically different from each other, each device category has its own special type of interrupt.  As an example, an interrupt coming from a keyboard may be different from an interrupt coming from a webcam.  With each various type of interrupt comes a corresponding interrupt controller and handler.  These attributes are shared throughout both Unix systems and Windows are known as interrupt request lines (IRQs).  They allow for the organization of the many different interrupt queues as each IRQ is given a numeric label for easy recognition.\cite{lkd7}\\
+
+Another attribute Linux/FreeBSD and Windows shares as well are interrupt handlers.  These are essentially functions the operating system runs to deal with interrupts and events that occur from responses being sent from various parts of hardware and software in the machine.  Like IRQs, there are various interrupt handlers for the several interrupt types.\\
+
+Specially in Linux, interrupt handlers are simply just regular C functions.  One feature that they have in the kernel is that they run in the interrupt context, a special area where the kernel invokes them in response to interrupts.\cite{lkd7}  It is in this context that the interrupt handler can be executed at any time when triggered by an interrupt.  The following code is an example of an interrupt handler in the Linux kernel.\cite{lkd7}  Observe the function calls and parameters below.\\
+
+\lstinputlisting[caption=Linux Kernel Interrupt Handler, style=customc]{linuxInterruptHandler.c}
+
+\subsection{Differences}
+
+One of the major differences between Linux and Windows interrupts is the \textit{top half bottom half paradigm} in Linux.  Because the two main goals of interrupt handlers are to perform swiftly and execute a large amount of work, the objectives are divergent.  As a result, interrupt processing is divided into two main parts known as the \textit{top half} and \textit{bottom half}.  The top half consists of the main interrupt handler while the bottom half contains the majority of the work that needs to be done.\cite{lkd7}  Essentially, code in the top half is run instantaneously while the bottom half bulk of tasks remains to be executed later on by the processer at a more convenient time.\\
+
+Another difference seen between Unix systems and Windows is the implementation of the Interrupt Dispatch Table (IDT).  In Windows, an IRQ is translated into an interrupt number and is subsequently indexed into the IDT.  At startup, the IDT is assigned pointers to the various kernel routines of the system that handle interrupts and other events.  Windows also is in charge of mapping hardware IRQs to these IDT interrupt numbers.  Typically in Windows, the maximum capacity of an IDT is 256 IRQs, however this ceiling can be altered by the machine's interrupt controller design.  Below is a figure of what viewing the IDT on Windows looks like, by running the command: \textit{!idt}.\cite{mwi3} Take note of the output columns and labels.\\
+
+\lstinputlisting[caption=Windows Interrupt Dispatch Table, style=customc]{idtOutput.c}
+
+\subsection{Similarities/Differences - Why?}
+
+The similarities between Unix systems and Windows in terms of interrupts and interrupt handlers is vindicated by their use cases and functionality.  Because interrupts are frequently used as a means of communication to the various devices and hardware of a machine, it is critical that there exists some sort of protocol to keep foreign devices and pieces of hardware able to be universally useable on different machines, no matter the operating system.\\
+
+Electrical signals from various input and output from devices should be interpreted as interrupts the same universally so third party hardware can send the same signals to machines with different operating systems and be able to communicate effectively.  Interrupt handlers in these machines with differing operating systems should be able to interpret such input with similar etiquette of processing.  It is through this methodology that some conventional protocols can be established in order to bring a universal interface between various forms of hardware.\\
+
+The differences between the Unix paradigm of top half and bottom half interrupts and the typical Windows interrupt can be justifiable through their purposes.  In the Linux mindset, because Unix prioritizes both quick execution as well as lots of execution, interrupts take on the top half bottom half architecture in order to satisfy both goals.  In Windows, these objectives are not as prevalent and thusly, the architecture remains distinctive between the two operating systems.\\
+
+The implementation of Interrupt Dispatch Tables in Windows can be rationalized through the core values of Windows.  Because often Windows machines are typically run along with many other third party hardware devices and software, the need to be universally adaptable to these various devices is a top priority for Windows.  As a result, Windows utilizes its special implementation of IDTs to organize and prioritize these different interrupts in some fashion to satisfy all working members of the machine.\\
+
+\section{Memory Management}
+
+A major task of an operating system is to oversee resources and allocate processing power.  Of these tasks emerge the role of memory management in a machine and its operating system.  Virtual address space plays a major role in memory management and in the following sections, we will delve into the specifics of each in various operating systems.\\
+
+\subsection{Similarities}
+
+Spanning across FreeBSD, Linux, and Windows - one consistent fundamental aspect is the fact that every process owns its own virtual address space.  Paging is implemented in both Unix and Windows systems as virtual address space given to a process can be greater than the actual volume of memory available.\\
+
+There are many features in regards to paging that both Unix and Windows systems support, one of which is copy-on-write paging.   Essentially this is done through a process known as lazy evaluation, whenever there is an attempt to modify a page that is technically read only, the internal memory manager creates a private copy which is writable and uses this to revise the page table and reference the updated private copy.\cite{lkd12}  Following this, the private page is paged out instead of the initial page.\\
+
+The main method in which Linux goes about copy-on-write paging is through the fork() system call.  In between this step and calling exec() is where lazy evaluation is used to delay the copying of an address space until an actual change to it is needed and attempted.  This is why the process address space is not copied right after the fork() system call is made as exec() is often utilized shortly after - and would need to be copied again.\cite{lkd12}\\
+
+\subsection{Differences}
+
+Firstly in Unix systems, processes are required to allocate a shared memory segment before other processes can attach it to their respective address spaces.  The contrast to this is seen in the Windows version of the process address space, which is managed by what is known as the memory manager.\cite{mwi10}  The working set is what Windows calls the process's virtual address space subset.  It is with this that Windows supports shared memory objects and memory mapped files which enables multiple processes to be opened on a single virtual address space.\\
+
+The following code sample displays the implementation of memory objects in Linux.  Take note of the initial segment (shm\_open).\cite{lkd12}\\
+
+\lstinputlisting[caption=Linux Memory Object Example, style=customc]{linuxMemoryManagement.c}
+
+In addition to this, the implementations of page tables in Unix systems versus Windows contrast as well.  In Linux, the four levels of page tables are: Page General Directory, Page Upper Directory, Page Middle Directory, and Page Table Entry.\cite{lkd12}  Windows systems only have two levels of page tables known as: Page Directory and Page Tables.  Both Unix and Windows support 4 KB pages.
+
+Another difference between Unix systems and Windows is the allocation of memory to virtual memory.  For every 4 GB process address space, Linux/FreeBSD allocates 1 GB for virtual memory.  In contrast, Windows allocates 2 GB of every 4 GB.\cite{mwi10}  This results in Windows having faster system calls as the kernel is able to execute more code in virtual memory without context switching.  However as a tradeoff, Windows processes have less private virtual memory.  FreeBSD/Linux processes have more context switching as a result of this architecture.  The following diagram displays the user output when using the kernel debugger for Windows.\cite{mwi10}  Make sure to take a note of the various pages and memory pools.\\
+
+\lstinputlisting[caption=Windows Kernel Memory Debugger Output, style=customc]{windowsMemoryManagement.c}
+
+\subsection{Similarities/Differences - Why?}
+
+The bridging similarities and distinct differences between FreeBSD/Linux and Windows can be justified through their various use cases and means of functionality.  Firstly with the similarities, FreeBSD/Linux and Windows each provide a virtual process space for processes primarily due to the fact that the abstraction provided are particularly useful for resource allocation for the operating system.  The ability that a process can essentially free up memory for other processes is a vital component in multiprocessing operating systems.  Additionally, each individual process has an individual segment of private memory, which alleviates its running program from the role of managing the physical memory itself.  FreeBSD, Linux, and Windows each implement copy-on-write paging as it assists in avoiding unnecessary transparency in memory.  Copy-on-write paging avoids unnecessary operations by events that involve incremental altering of memory such as Linux's fork() and exec() example.  Paging does this to circumvent situations in which executable images change shortly after a process is performed on a virtual address space.\\
+
+In terms of differences between the operating systems, a major architectural design disparity can be seen in Linux's two system calls to create and attach an executable image afterwards versus Windows singular system call.  It is due to this functionality that the memory mapping in Unix systems is a bit more tedious at times.  However, this can be rationalized to the Unix mindset of having modular functions that accomplish a single task.  In contrast to this is Window's implementation - which allows for virtual memory to be a part of each process's memory, resulting in software being able to be run in Kernel mode with minimal context switches.  Additionally, the Windows implementation utilizes only two levels of paging as the private memory in each process is a bit lesser than in Linux.\\
+
+\section{Conclusion}
+
+Operating systems have changed the way the devices we build help shape our lives and the technological prospects of our future.  The comparison of the various features above has demonstrated that while operating systems share the same goals, they may approach these objectives in largely varying manners - each with their pros and cons.  However, one key lesson to take away from this analysis is while the approaches on operating systems can be varying in certain areas, these approaches are based off of a core design paradigm the developers have chosen to follow to ensure an intuitive experience for their targeted objectives.  With this in mind, the right tool for the right job is a critical idea to keep in mind as each operating system is designed to serve a specific set of tasks.
+
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{CS444_Final}
+\end{document}
